@@ -371,12 +371,25 @@ summary{cursor:pointer;color:var(--pl);font-weight:500;font-size:.9rem;padding:4
 .auth-input:focus{border-color:var(--pl);box-shadow:0 0 0 2px var(--pu-bd)}
 .auth-btn-main{background:linear-gradient(135deg,var(--pu),#6d28d9);border:1px solid var(--pl);color:#fff;font:inherit;font-weight:700;font-size:.92rem;padding:12px;border-radius:8px;cursor:pointer;margin-top:4px;box-shadow:0 4px 14px rgba(138,43,226,.4);transition:.15s}
 .auth-btn-main:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.auth-btn-guest{background:transparent;border:1px dashed var(--ln2);color:var(--mu);font:inherit;font-size:.82rem;padding:8px 12px;border-radius:8px;cursor:pointer;transition:.15s;margin-top:2px}
-.auth-btn-guest:hover{color:var(--tx);border-color:var(--pl)}
 .auth-msg{font-size:.82rem;padding:8px 12px;border-radius:6px;display:none;margin-top:4px}
 .auth-msg.err{display:block;background:var(--er-bg);border:1px solid var(--er);color:var(--er)}
 .auth-msg.ok{display:block;background:var(--ok-bg);border:1px solid var(--ok);color:var(--ok)}
 .auth-user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:.75rem;font-weight:700;background:var(--pu-bg);color:var(--pl);border:1px solid var(--pu-bd)}
+
+/* Bloqueio de Acesso Obrigatório (Strict Login Gate) */
+body.auth-locked main,
+body.auth-locked .hero-panel,
+body.auth-locked .sec-title,
+body.auth-locked .areas,
+body.auth-locked .tools-grid,
+body.auth-locked footer {
+  display: none !important;
+}
+body.auth-locked #auth-modal {
+  background: rgba(5, 3, 10, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  z-index: 99999 !important;
+}
 
 footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18px 0 28px;margin-top:28px;text-align:center}
 </style>
@@ -738,7 +751,6 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
         </div>
         <div id="login-msg" class="auth-msg"></div>
         <button type="submit" id="btn-submit-login" class="auth-btn-main">Entrar na Plataforma</button>
-        <button type="button" id="btn-guest-mode" class="auth-btn-guest">Continuar como Convidado (Modo Teste)</button>
       </form>
 
       <!-- FORMULÁRIO: CRIAR CONTA -->
@@ -2764,6 +2776,7 @@ function openAuthModal(mode){
     // Modo logado (perfil do aluno)
     $("auth-unlogged-view").style.display = "none";
     $("auth-logged-view").style.display = "block";
+    if($("auth-close-btn")) $("auth-close-btn").style.display = "block";
     $("profile-name").textContent = u.name || "Dr(a). Aluno";
     $("profile-email").textContent = u.email || "";
     $("profile-period-badge").textContent = periodLabel(u.period) || "Todos os períodos";
@@ -2776,7 +2789,9 @@ function openAuthModal(mode){
     $("profile-stat-done").textContent = totalDone;
     $("profile-stat-acc").textContent = acc + "%";
   } else {
-    // Modo deslogado (login / cadastro)
+    // Modo deslogado (acesso restrito obrigatório)
+    document.body.classList.add("auth-locked");
+    if($("auth-close-btn")) $("auth-close-btn").style.display = "none";
     $("auth-unlogged-view").style.display = "block";
     $("auth-logged-view").style.display = "none";
     switchAuthTab(mode === "signup" ? "signup" : "login");
@@ -2784,8 +2799,25 @@ function openAuthModal(mode){
 }
 
 function closeAuthModal(){
+  var u = getCurrentUser();
+  if(!u){
+    // Sem login, bloqueia fechar
+    return;
+  }
   var m = $("auth-modal");
   if(m) m.hidden = true;
+  document.body.classList.remove("auth-locked");
+}
+
+function checkAccessGate(){
+  var u = getCurrentUser();
+  if(!u){
+    document.body.classList.add("auth-locked");
+    openAuthModal("login");
+  } else {
+    document.body.classList.remove("auth-locked");
+    updateAuthUI();
+  }
 }
 
 function switchAuthTab(tab){
@@ -2804,7 +2836,7 @@ function switchAuthTab(tab){
 $("btn-auth-user").onclick = function(){ openAuthModal(); };
 $("auth-close-btn").onclick = closeAuthModal;
 $("btn-profile-close").onclick = closeAuthModal;
-$("auth-modal").onclick = function(e){ if(e.target === $("auth-modal")) closeAuthModal(); };
+$("auth-modal").onclick = function(e){ if(e.target === $("auth-modal") && getCurrentUser()) closeAuthModal(); };
 
 $("tab-btn-login").onclick = function(){ switchAuthTab("login"); };
 $("tab-btn-signup").onclick = function(){ switchAuthTab("signup"); };
@@ -2816,23 +2848,24 @@ $("btn-submit-login").onclick = function(){
   var msg = $("login-msg");
   if(!email || !pass){
     msg.className = "auth-msg err";
-    msg.textContent = "Preencha e-mail e senha.";
+    msg.textContent = "Preencha e-mail e senha para acessar.";
     return;
   }
   var users = getAuthUsers();
   var found = users.find(function(x){ return x.email === email && x.pass === pass; });
   if(!found){
     msg.className = "auth-msg err";
-    msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha conta, clique em 'Criar Conta'.";
+    msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha cadastro, clique na aba 'Criar Conta'.";
     return;
   }
   setCurrentUser(found);
+  document.body.classList.remove("auth-locked");
   msg.className = "auth-msg ok";
-  msg.textContent = "Login realizado com sucesso! Bem-vindo de volta, " + found.name + ".";
+  msg.textContent = "Acesso autorizado! Bem-vindo de volta, " + found.name + ".";
   setTimeout(function(){
     closeAuthModal();
     initGreetingAndPeriods();
-  }, 600);
+  }, 500);
 };
 
 // Executar Cadastro
@@ -2844,7 +2877,7 @@ $("btn-submit-signup").onclick = function(){
   var msg = $("signup-msg");
   if(!name || !email || !pass){
     msg.className = "auth-msg err";
-    msg.textContent = "Preencha todos os campos para criar sua conta.";
+    msg.textContent = "Preencha todos os campos para criar seu acesso.";
     return;
   }
   if(pass.length < 4){
@@ -2869,6 +2902,7 @@ $("btn-submit-signup").onclick = function(){
   users.push(newUser);
   saveAuthUsers(users);
   setCurrentUser(newUser);
+  document.body.classList.remove("auth-locked");
 
   if(period && period !== "all"){
     curPeriod = period;
@@ -2876,31 +2910,25 @@ $("btn-submit-signup").onclick = function(){
   }
 
   msg.className = "auth-msg ok";
-  msg.textContent = "Conta criada com sucesso! Carregando seus estudos...";
+  msg.textContent = "Acesso criado com sucesso! Carregando a plataforma...";
   setTimeout(function(){
     closeAuthModal();
     initGreetingAndPeriods();
     buildDashboard();
     buildAreas();
-  }, 700);
-};
-
-// Modo Convidado
-$("btn-guest-mode").onclick = function(){
-  closeAuthModal();
+  }, 600);
 };
 
 // Logout
 $("btn-logout").onclick = function(){
   if(confirm("Deseja sair da sua conta?")){
     setCurrentUser(null);
-    closeAuthModal();
-    initGreetingAndPeriods();
+    checkAccessGate();
   }
 };
 
-// Inicializar interface de autenticação
-updateAuthUI();
+// Inicializar interface e checagem de acesso obrigatório
+checkAccessGate();
 
 // Initialize App Immediately (No Gate!)
 initGreetingAndPeriods();rg();re();buildDashboard();buildAreas();
