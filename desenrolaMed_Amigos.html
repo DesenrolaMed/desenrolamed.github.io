@@ -286,6 +286,8 @@ summary{cursor:pointer;color:var(--pl);font-weight:500;font-size:.9rem;padding:4
 .ar-period-pill{display:inline-flex;align-items:center;gap:5px;font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:99px}
 .ar-period-pill.p7{background:var(--wn-bg);color:var(--wn);border:1px solid rgba(245,158,11,.32)}
 .ar-period-pill.p8{background:var(--pu-bg);color:var(--pl);border:1px solid var(--pu-bd)}
+.ar-period-pill.p1,.ar-period-pill.p2,.ar-period-pill.p3,.ar-period-pill.p4,.ar-period-pill.p5,.ar-period-pill.p6{background:var(--ok-bg);color:var(--ok);border:1px solid rgba(61,220,151,.3)}
+.ar-period-pill.pint,.ar-period-pill.penamed,.ar-period-pill.ptpi{background:var(--er-bg);color:var(--er);border:1px solid rgba(255,92,122,.3)}
 
 /* Acervo VIP Inspired: 2-Column Subject Selector Board (AssessmentTopicFilterModal) */
 .ac-wrap{background:var(--sf);border:1px solid var(--ln2);border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
@@ -391,9 +393,7 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
           <div class="greet-sub">Selecione o período e filtre questões por assunto ou resolva provas completas.</div>
         </div>
         <div class="period-tabs" id="period-tabs" role="tablist" aria-label="Selecionar Período">
-          <button class="ptab" data-period="7" role="tab">7º Período <span class="p-cnt" id="cnt-p7">3 disc</span></button>
-          <button class="ptab" data-period="8" role="tab">8º Período <span class="p-cnt" id="cnt-p8">5 disc</span></button>
-          <button class="ptab on" data-period="all" role="tab">Todos <span class="p-cnt" id="cnt-pall">8 disc</span></button>
+          <button class="ptab on" data-period="all" role="tab">Todos <span class="p-cnt" id="cnt-pall">…</span></button>
         </div>
       </div>
       <div class="top-summary" id="dash-stats"></div>
@@ -440,7 +440,7 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
 <!-- CATÁLOGO COMPLETO DE PROVAS INTERATIVAS & PDFs ORIGINAIS -->
 <section id="provas" class="mod" hidden>
   <button class="back" data-back>‹ Voltar ao painel inicial</button>
-  <h2>Catálogo Completo de Provas &amp; PDFs Oficiais (7º e 8º Períodos)</h2>
+  <h2>Catálogo Completo de Provas &amp; PDFs Oficiais (todos os períodos)</h2>
   <p class="sub">Escolha qualquer uma das 28 provas/simulados do banco para resolver de forma interativa (com gabarito comentado e Bizu de Prova) ou visualize os 29 arquivos PDF originais aqui mesmo na tela.</p>
   <div id="provas-pdf-viewer" hidden></div>
   <div id="provas-catalog"></div>
@@ -683,8 +683,21 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
   <div class="modal-box" id="sheet-modal-body"></div>
 </div>
 
-<footer>desenrolaMed · Banco Pessoal de Questões (7º e 8º Períodos AFYA · 878 Questões) · Atalhos na questão: A–E (alternativa), Enter (confirmar/próxima), ←/→ (navegar), S (favoritar).</footer>
+<footer>desenrolaMed · Banco Pessoal de Questões (1º ao 8º Período, Internato, ENAMED e TPI · AFYA) · Atalhos na questão: A–E (alternativa), Enter (confirmar/próxima), ←/→ (navegar), S (favoritar).</footer>
 </div>
+
+<!-- Módulos Adicionais de Questões (PROVAS AFYA) -->
+<script src="dados/provas_afya_1.js"></script>
+<script src="dados/provas_afya_2.js"></script>
+<script src="dados/provas_afya_3.js"></script>
+<script src="dados/provas_afya_4.js"></script>
+<script src="dados/provas_afya_5.js"></script>
+<script src="dados/provas_afya_6.js"></script>
+<script src="dados/provas_afya_7.js"></script>
+<script src="dados/provas_afya_8.js"></script>
+<script src="dados/provas_afya_int.js"></script>
+<script src="dados/provas_afya_enamed.js"></script>
+<script src="dados/provas_afya_tpi.js"></script>
 
 <script>
 if(typeof NodeList!=="undefined"&&NodeList.prototype&&!NodeList.prototype.forEach)NodeList.prototype.forEach=Array.prototype.forEach;
@@ -732,8 +745,25 @@ if(!Array.isArray(STUDY.guides))STUDY.guides=STUDY.guides&&STUDY.guides.value?ST
 if(!Array.isArray(STUDY.flashcards))STUDY.flashcards=STUDY.flashcards&&STUDY.flashcards.value?STUDY.flashcards.value:[];
 if(!STUDY.topicTips)STUDY.topicTips={};
 
+// Banco antigo: período fixo (7º/8º). Banco novo (pasta PROVAS AFYA, arquivos em dados/*.js) já traz o período.
 D.forEach(function(a){
-  a.period=(a.k==="ci2"||a.k==="cc3"||a.k==="int7")?"7":"8";
+  if(!a.period)a.period=(a.k==="ci2"||a.k==="cc3"||a.k==="int7")?"7":"8";
+});
+if(window.EXTRA_D&&window.EXTRA_D.length)D=D.concat(window.EXTRA_D);
+
+// Ordem e rótulos dos períodos
+var PERIOD_ORDER=["1","2","3","4","5","6","7","8","int","enamed","tpi"];
+function periodLabel(p){
+  if(p==="int")return "Internato";
+  if(p==="enamed")return "ENAMED";
+  if(p==="tpi")return "TPI";
+  if(p==="all")return "Todos os períodos";
+  return p+"º Período";
+}
+function periodRank(p){var i=PERIOD_ORDER.indexOf(p);return i<0?99:i}
+D.sort(function(x,y){return periodRank(x.period)-periodRank(y.period)});
+
+D.forEach(function(a){
   if(!Array.isArray(a.ex))a.ex=a.ex?(a.ex.value||[a.ex]):[];
   a.ex.forEach(function(e){
     if(!Array.isArray(e.q))e.q=e.q?(e.q.value||[e.q]):[];
@@ -754,7 +784,7 @@ D.forEach(function(a){
   });
 });
 
-// Time-of-day Greeting & Period Switcher (#periodo-7 / #periodo-8 / all)
+// Time-of-day Greeting & Period Switcher (Dinâmico para todos os períodos)
 var curPeriod=ld("dm-period","all");
 function initGreetingAndPeriods(){
   var hr=new Date().getHours();
@@ -762,36 +792,54 @@ function initGreetingAndPeriods(){
   if($("greet-txt"))$("greet-txt").textContent=gr;
 
   var h=(window.location.hash||"").toLowerCase();
-  if(h.indexOf("periodo-7")>=0)curPeriod="7";
-  else if(h.indexOf("periodo-8")>=0)curPeriod="8";
+  PERIOD_ORDER.forEach(function(p){
+    if(h.indexOf("periodo-"+p)>=0)curPeriod=p;
+  });
+  if(h.indexOf("todos")>=0)curPeriod="all";
 
-  var q7=0,q8=0,d7=0,d8=0;
+  var pStats={}, totDisc=0, totQs=0;
   D.forEach(function(a){
+    var p=a.period||"8";
+    if(!pStats[p])pStats[p]={d:0,q:0};
+    pStats[p].d++;
+    totDisc++;
     var n=0;a.ex.forEach(function(e){n+=e.q.length});
-    if(a.period==="7"){d7++;q7+=n}else{d8++;q8+=n}
+    pStats[p].q+=n;
+    totQs+=n;
   });
-  if($("cnt-p7"))$("cnt-p7").textContent=d7+" disc · "+q7+" Qs";
-  if($("cnt-p8"))$("cnt-p8").textContent=d8+" disc · "+q8+" Qs";
-  if($("cnt-pall"))$("cnt-pall").textContent=(d7+d8)+" disc · "+(q7+q8)+" Qs";
 
-  document.querySelectorAll("#period-tabs .ptab").forEach(function(btn){
-    btn.classList.toggle("on",btn.dataset.period===curPeriod);
-    btn.onclick=function(){
-      curPeriod=btn.dataset.period;
-      sv("dm-period",curPeriod);
-      if(curPeriod==="7")history.replaceState(null,"","#periodo-7");
-      else if(curPeriod==="8")history.replaceState(null,"","#periodo-8");
-      else history.replaceState(null,"","#todos");
-      document.querySelectorAll("#period-tabs .ptab").forEach(function(b){b.classList.toggle("on",b.dataset.period===curPeriod)});
-      buildDashboard();
-      buildAreas();
-    };
-  });
+  var container=$("period-tabs");
+  if(container){
+    var tabsHtml='<button class="ptab'+(curPeriod==="all"?' on':'')+'" data-period="all" role="tab">Todos <span class="p-cnt">'+totDisc+' disc · '+totQs+' Qs</span></button>';
+    PERIOD_ORDER.forEach(function(p){
+      var st=pStats[p];
+      if(!st)return;
+      var lbl=periodLabel(p);
+      tabsHtml+='<button class="ptab'+(curPeriod===p?' on':'')+'" data-period="'+p+'" role="tab">'+lbl+' <span class="p-cnt">'+st.d+' disc · '+st.q+' Qs</span></button>';
+    });
+    container.innerHTML=tabsHtml;
+
+    container.querySelectorAll(".ptab").forEach(function(btn){
+      btn.onclick=function(){
+        curPeriod=btn.dataset.period;
+        sv("dm-period",curPeriod);
+        if(curPeriod==="all")history.replaceState(null,"","#todos");
+        else history.replaceState(null,"","#periodo-"+curPeriod);
+        container.querySelectorAll(".ptab").forEach(function(b){b.classList.toggle("on",b.dataset.period===curPeriod)});
+        buildDashboard();
+        buildAreas();
+      };
+    });
+  }
 }
 window.addEventListener("hashchange",function(){
   var h=(window.location.hash||"").toLowerCase();
-  if(h.indexOf("periodo-7")>=0 && curPeriod!=="7"){curPeriod="7";initGreetingAndPeriods();buildDashboard();buildAreas()}
-  else if(h.indexOf("periodo-8")>=0 && curPeriod!=="8"){curPeriod="8";initGreetingAndPeriods();buildDashboard();buildAreas()}
+  var changed=false;
+  PERIOD_ORDER.forEach(function(p){
+    if(h.indexOf("periodo-"+p)>=0 && curPeriod!==p){curPeriod=p;changed=true}
+  });
+  if(h.indexOf("todos")>=0 && curPeriod!=="all"){curPeriod="all";changed=true}
+  if(changed){initGreetingAndPeriods();buildDashboard();buildAreas()}
 });
 
 // Map of Official PDFs in the Workspace
@@ -898,7 +946,7 @@ function buildDashboard(){
   var st=getGlobalStats();
   var allFC=STUDY.flashcards.concat(customFC);
   var fcDone=allFC.filter(function(f){return fcProg[f.id]==="easy"}).length;
-  var pLabel=curPeriod==="7"?"7º Período":curPeriod==="8"?"8º Período":"7º e 8º Períodos";
+  var pLabel=periodLabel(curPeriod);
   if($("areas-sec-title"))$("areas-sec-title").textContent="Disciplinas ("+pLabel+") · Questões por Assunto e Provas";
   $("dash-stats").innerHTML=
     '<div class="ts-metrics">'+
@@ -955,7 +1003,7 @@ function buildAreas(){
     b.innerHTML=
       '<div>'+
       '<div class="ar-top-badges">'+
-      '<span class="ar-period-pill p'+a.period+'">'+a.period+'º Período</span>'+
+      '<span class="ar-period-pill p'+a.period+'">'+periodLabel(a.period)+'</span>'+
       '<span class="tag">'+topicCnt+' assuntos · '+uniqCnt+' Qs</span>'+
       '</div>'+
       '<div class="ar-head" style="margin-top:6px">'+
@@ -1015,7 +1063,7 @@ function renderProvasCatalog(){
     sec.style.marginBottom="22px";
     var h3=document.createElement("h3");
     h3.style.fontSize="1.08rem";h3.style.marginBottom="8px";
-    h3.textContent="["+a.period+"º Período] "+a.n+" — "+a.s+" ("+a.ex.length+" provas)";
+    h3.textContent="["+periodLabel(a.period)+"] "+a.n+" — "+a.s+" ("+a.ex.length+" provas)";
     sec.appendChild(h3);
 
     a.ex.forEach(function(e){
@@ -1031,7 +1079,11 @@ function renderProvasCatalog(){
       var actWrap=document.createElement("div");
       actWrap.style.display="flex";actWrap.style.gap="6px";actWrap.style.flexWrap="wrap";actWrap.style.alignItems="center";
 
-      (PDF_MAP[e.id]||[]).forEach(function(pdf){
+      var pdfList=(PDF_MAP[e.id]||[]).slice();
+      if(e.pdf && !pdfList.some(function(p){return p.p===e.pdf})){
+        pdfList.push({l:"PDF da Prova",p:e.pdf});
+      }
+      pdfList.forEach(function(pdf){
         var btnView=document.createElement("button");
         btnView.className="chip";
         btnView.textContent="📄 "+pdf.l;
@@ -1182,7 +1234,7 @@ function builder(a,l,isModal,onCloseModal){
   w.innerHTML=
     '<div class="ac-top">'+
     '<div>'+
-    '<span class="ac-badge-ylw">QUESTÕES POR ASSUNTO · ASSUNTOS FILTRADOS ('+a.period+'º PERÍODO)</span>'+
+    '<span class="ac-badge-ylw">QUESTÕES POR ASSUNTO · ASSUNTOS FILTRADOS ('+periodLabel(a.period).toUpperCase()+')</span>'+
     '<h3>'+esc(a.n)+' — '+esc(a.s)+'</h3>'+
     '<p id="ac-sub-stat">Selecione os assuntos na coluna da esquerda para montar sua prova/bateria personalizada na coluna da direita.</p>'+
     '</div>'+
@@ -1467,7 +1519,7 @@ function builder(a,l,isModal,onCloseModal){
 
 function openArea(a){
   curA=a;
-  $("ah").textContent="["+a.period+"º Período] "+a.n+" · "+a.s;
+  $("ah").textContent="["+periodLabel(a.period)+"] "+a.n+" · "+a.s;
   $("as").textContent="Selecione os assuntos no quadro interativo de 2 colunas abaixo ou resolva uma das provas e PDFs oficiais na íntegra.";
   var l=$("al");l.innerHTML="";
   $("area-pdf-viewer").hidden=true;$("area-pdf-viewer").innerHTML="";
@@ -1494,7 +1546,11 @@ function openArea(a){
     var actWrap=document.createElement("div");
     actWrap.style.display="flex";actWrap.style.gap="6px";actWrap.style.flexWrap="wrap";actWrap.style.alignItems="center";
 
-    (PDF_MAP[e.id]||[]).forEach(function(pdf){
+    var pdfList=(PDF_MAP[e.id]||[]).slice();
+    if(e.pdf && !pdfList.some(function(p){return p.p===e.pdf})){
+      pdfList.push({l:"PDF da Prova",p:e.pdf});
+    }
+    pdfList.forEach(function(pdf){
       var btnView=document.createElement("button");
       btnView.className="chip";
       btnView.textContent="📄 "+pdf.l;
