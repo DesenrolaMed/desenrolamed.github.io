@@ -7,9 +7,12 @@ echo       PUBLICANDO ATUALIZAÇÕES DO DESENROLAMED
 echo ========================================================
 echo.
 
-:: Garantir que o Git portátil instalado no perfil do usuário esteja no PATH
+:: Garantir que o Git e o GitHub CLI estejam no PATH
 if exist "%LOCALAPPDATA%\Programs\Git\cmd\git.exe" (
     set "PATH=%LOCALAPPDATA%\Programs\Git\cmd;%PATH%"
+)
+if exist "%LOCALAPPDATA%\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin\gh.exe" (
+    set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin;%PATH%"
 )
 
 :: Verificar se o Git está instalado
@@ -24,7 +27,7 @@ if %errorlevel% neq 0 (
 )
 
 echo [1/3] Identificando alterações no banco de dados...
-git add index.html desenrolaMed.html desenrolaMed_Amigos.html .gitignore
+git add -A
 
 echo [2/3] Registrando as alterações...
 for /f "tokens=1-4 delims=/ " %%a in ("%date%") do set d=%%a-%%b-%%c
@@ -32,7 +35,7 @@ for /f "tokens=1-2 delims=: " %%a in ("%time%") do set t=%%a:%%b
 git commit -m "Atualização do banco de dados (%d% %t%)"
 
 echo [3/3] Enviando para o site online no GitHub...
-git push
+git push -u origin main
 
 if %errorlevel% equ 0 (
     echo.
