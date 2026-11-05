@@ -354,6 +354,30 @@ summary{cursor:pointer;color:var(--pl);font-weight:500;font-size:.9rem;padding:4
   .no-print{display:none!important}
 }
 
+/* Auth Modal & Cards */
+.auth-box{width:100%;max-width:440px;background:var(--sf);border:1px solid var(--ln2);border-radius:16px;padding:26px 24px;box-shadow:0 24px 60px rgba(0,0,0,.65);position:relative;animation:authPop .2s ease-out}
+@keyframes authPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.auth-header{text-align:center;margin-bottom:20px}
+.auth-logo-badge{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;background:var(--pu-bg);border:1px solid var(--pu-bd);font-size:1.6rem;margin-bottom:10px}
+.auth-header h3{font-size:1.3rem;margin:0 0 6px;color:var(--tx)}
+.auth-header p{font-size:.82rem;color:var(--mu);margin:0}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--in);border:1px solid var(--ln);border-radius:10px;padding:3px;margin-bottom:18px}
+.auth-tab{background:transparent;border:0;color:var(--mu);font:inherit;font-size:.85rem;font-weight:700;padding:8px 12px;border-radius:8px;cursor:pointer;transition:.15s}
+.auth-tab.on{background:var(--pu);color:#fff;box-shadow:0 2px 8px rgba(138,43,226,.35)}
+.auth-form{display:flex;flex-direction:column;gap:12px}
+.auth-field{display:flex;flex-direction:column;gap:5px;text-align:left}
+.auth-field label{font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.auth-input{background:var(--in);border:1px solid var(--ln);border-radius:8px;padding:10px 12px;font:inherit;font-size:.9rem;color:var(--tx);outline:none;transition:.15s}
+.auth-input:focus{border-color:var(--pl);box-shadow:0 0 0 2px var(--pu-bd)}
+.auth-btn-main{background:linear-gradient(135deg,var(--pu),#6d28d9);border:1px solid var(--pl);color:#fff;font:inherit;font-weight:700;font-size:.92rem;padding:12px;border-radius:8px;cursor:pointer;margin-top:4px;box-shadow:0 4px 14px rgba(138,43,226,.4);transition:.15s}
+.auth-btn-main:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.auth-btn-guest{background:transparent;border:1px dashed var(--ln2);color:var(--mu);font:inherit;font-size:.82rem;padding:8px 12px;border-radius:8px;cursor:pointer;transition:.15s;margin-top:2px}
+.auth-btn-guest:hover{color:var(--tx);border-color:var(--pl)}
+.auth-msg{font-size:.82rem;padding:8px 12px;border-radius:6px;display:none;margin-top:4px}
+.auth-msg.err{display:block;background:var(--er-bg);border:1px solid var(--er);color:var(--er)}
+.auth-msg.ok{display:block;background:var(--ok-bg);border:1px solid var(--ok);color:var(--ok)}
+.auth-user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:.75rem;font-weight:700;background:var(--pu-bg);color:var(--pl);border:1px solid var(--pu-bd)}
+
 footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18px 0 28px;margin-top:28px;text-align:center}
 </style>
 </head>
@@ -376,6 +400,7 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
     <button class="nbtn" data-nav="ia">IA &amp; Backup</button>
     <button class="nbtn" data-nav="metas">Metas</button>
     <button class="nbtn" id="btn-theme" title="Alternar tema claro / escuro">☀/☾</button>
+    <button class="nbtn" id="btn-auth-user" title="Perfil / Conta de Estudante" style="display:inline-flex;align-items:center;gap:6px;border-color:var(--pl);background:var(--pu-bg);color:var(--pl);font-weight:700"><span>👤</span> <span id="nav-user-label">Entrar</span></button>
   </nav>
 </header>
 
@@ -683,6 +708,106 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
   <div class="modal-box" id="sheet-modal-body"></div>
 </div>
 
+<!-- MODAL: AUTENTICAÇÃO (LOGIN / CRIAR CONTA / PERFIL) -->
+<div id="auth-modal" class="modal-bg" hidden>
+  <div class="auth-box" id="auth-modal-card">
+    <button class="cb" id="auth-close-btn" style="position:absolute;top:16px;right:16px" title="Fechar">✕</button>
+
+    <!-- ESTADO: DESLOGADO (TABS LOGIN & CADASTRO) -->
+    <div id="auth-unlogged-view">
+      <div class="auth-header">
+        <div class="auth-logo-badge">🩺</div>
+        <h3>desenrola<span>Med</span></h3>
+        <p>Acesse seu perfil ou crie sua conta para salvar seu progresso e simulados.</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab on" id="tab-btn-login">Entrar</button>
+        <button class="auth-tab" id="tab-btn-signup">Criar Conta</button>
+      </div>
+
+      <!-- FORMULÁRIO: ENTRAR -->
+      <form id="form-login" class="auth-form" onsubmit="return false;">
+        <div class="auth-field">
+          <label for="inp-login-email">E-mail</label>
+          <input type="email" id="inp-login-email" class="auth-input" placeholder="seuemail@exemplo.com" required autocomplete="username">
+        </div>
+        <div class="auth-field">
+          <label for="inp-login-pass">Senha</label>
+          <input type="password" id="inp-login-pass" class="auth-input" placeholder="Sua senha de acesso" required autocomplete="current-password">
+        </div>
+        <div id="login-msg" class="auth-msg"></div>
+        <button type="submit" id="btn-submit-login" class="auth-btn-main">Entrar na Plataforma</button>
+        <button type="button" id="btn-guest-mode" class="auth-btn-guest">Continuar como Convidado (Modo Teste)</button>
+      </form>
+
+      <!-- FORMULÁRIO: CRIAR CONTA -->
+      <form id="form-signup" class="auth-form" style="display:none" onsubmit="return false;">
+        <div class="auth-field">
+          <label for="inp-signup-name">Nome Completo</label>
+          <input type="text" id="inp-signup-name" class="auth-input" placeholder="Ex: Dr. Igor Silva" required autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <label for="inp-signup-email">E-mail</label>
+          <input type="email" id="inp-signup-email" class="auth-input" placeholder="seuemail@exemplo.com" required autocomplete="username">
+        </div>
+        <div class="auth-field">
+          <label for="inp-signup-pass">Criar Senha</label>
+          <input type="password" id="inp-signup-pass" class="auth-input" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+        </div>
+        <div class="auth-field">
+          <label for="inp-signup-period">Seu Período Principal</label>
+          <select id="inp-signup-period" class="auth-input">
+            <option value="1">1º Período</option>
+            <option value="2">2º Período</option>
+            <option value="3">3º Período</option>
+            <option value="4">4º Período</option>
+            <option value="5">5º Período</option>
+            <option value="6">6º Período</option>
+            <option value="7">7º Período</option>
+            <option value="8" selected>8º Período</option>
+            <option value="int">Internato</option>
+            <option value="enamed">ENAMED</option>
+            <option value="tpi">TPI</option>
+          </select>
+        </div>
+        <div id="signup-msg" class="auth-msg"></div>
+        <button type="submit" id="btn-submit-signup" class="auth-btn-main">Criar Conta Gratuita</button>
+      </form>
+    </div>
+
+    <!-- ESTADO: LOGADO (PERFIL DO ALUNO) -->
+    <div id="auth-logged-view" style="display:none">
+      <div class="auth-header">
+        <div class="auth-logo-badge">👨‍⚕️</div>
+        <h3 id="profile-name">Dr(a). Aluno</h3>
+        <p id="profile-email">aluno@email.com</p>
+        <div style="margin-top:8px"><span class="auth-user-badge" id="profile-period-badge">8º Período</span></div>
+      </div>
+
+      <div style="background:var(--in);border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="font-size:.78rem;font-weight:700;color:var(--mu);margin-bottom:8px;text-transform:uppercase">Seu Desempenho</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center">
+          <div style="background:var(--sf);border:1px solid var(--ln2);border-radius:8px;padding:8px">
+            <div id="profile-stat-done" style="font-size:1.2rem;font-weight:800;color:var(--tx)">0</div>
+            <div style="font-size:.72rem;color:var(--mu)">Respondidas</div>
+          </div>
+          <div style="background:var(--sf);border:1px solid var(--ln2);border-radius:8px;padding:8px">
+            <div id="profile-stat-acc" style="font-size:1.2rem;font-weight:800;color:var(--ok)">0%</div>
+            <div style="font-size:.72rem;color:var(--mu)">Aproveitamento</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" id="btn-logout" class="cf" style="background:var(--er-bg);border:1px solid var(--er);color:var(--er);margin:0">Sair da Conta (Logout)</button>
+        <button type="button" id="btn-profile-close" class="auth-btn-guest">Continuar Estudando</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <footer>desenrolaMed · Banco Pessoal de Questões (1º ao 8º Período, Internato, ENAMED e TPI · AFYA) · Atalhos na questão: A–E (alternativa), Enter (confirmar/próxima), ←/→ (navegar), S (favoritar).</footer>
 </div>
 
@@ -788,7 +913,9 @@ D.forEach(function(a){
 var curPeriod=ld("dm-period","all");
 function initGreetingAndPeriods(){
   var hr=new Date().getHours();
-  var gr=hr<5?"🌌 Boa madrugada, Dr(a)":hr<12?"☀️ Bom dia, Dr(a)":hr<18?"🌤️ Boa tarde, Dr(a)":"🌙 Boa noite, Dr(a)";
+  var u=getCurrentUser();
+  var uName = (u && u.name) ? "Dr(a). " + u.name.split(" ")[0] : "Dr(a)";
+  var gr=hr<5?"🌌 Boa madrugada, "+uName:hr<12?"☀️ Bom dia, "+uName:hr<18?"🌤️ Boa tarde, "+uName:"🌙 Boa noite, "+uName;
   if($("greet-txt"))$("greet-txt").textContent=gr;
 
   var h=(window.location.hash||"").toLowerCase();
@@ -2595,6 +2722,185 @@ $("btn-reset-hist").onclick=function(){
   if(!confirm("Deseja realmente zerar seu histórico de questões respondidas? (Suas anotações, flashcards, guias e metas serão mantidos)."))return;
   hist={};sv("dm-hist",hist);show("top");
 };
+
+// ==========================================
+// SISTEMA DE AUTENTICAÇÃO E PERFIL DO ALUNO
+// ==========================================
+function getAuthUsers(){ return ld("dm_auth_users", []); }
+function saveAuthUsers(users){ sv("dm_auth_users", users); }
+function getCurrentUser(){ return ld("dm_current_user", null); }
+function setCurrentUser(user){ sv("dm_current_user", user); updateAuthUI(); }
+
+function updateAuthUI(){
+  var u = getCurrentUser();
+  var navBtn = $("btn-auth-user");
+  var navLabel = $("nav-user-label");
+  if(u && u.name){
+    var shortName = u.name.split(" ")[0];
+    if(navLabel) navLabel.textContent = "Dr(a). " + shortName;
+    if(navBtn){
+      navBtn.title = "Perfil: " + u.name + " (" + (periodLabel(u.period)||u.period) + ")";
+      navBtn.style.borderColor = "var(--ok)";
+      navBtn.style.color = "var(--ok)";
+      navBtn.style.background = "var(--ok-bg)";
+    }
+  } else {
+    if(navLabel) navLabel.textContent = "Entrar";
+    if(navBtn){
+      navBtn.title = "Entrar ou Criar Conta";
+      navBtn.style.borderColor = "var(--pl)";
+      navBtn.style.color = "var(--pl)";
+      navBtn.style.background = "var(--pu-bg)";
+    }
+  }
+}
+
+function openAuthModal(mode){
+  var m = $("auth-modal");
+  if(!m) return;
+  m.hidden = false;
+  var u = getCurrentUser();
+  if(u){
+    // Modo logado (perfil do aluno)
+    $("auth-unlogged-view").style.display = "none";
+    $("auth-logged-view").style.display = "block";
+    $("profile-name").textContent = u.name || "Dr(a). Aluno";
+    $("profile-email").textContent = u.email || "";
+    $("profile-period-badge").textContent = periodLabel(u.period) || "Todos os períodos";
+
+    // Calcular estatísticas do aluno
+    var totalDone = Object.keys(hist||{}).length;
+    var correct = 0;
+    Object.keys(hist||{}).forEach(function(k){ if(hist[k].c) correct++; });
+    var acc = totalDone > 0 ? Math.round((correct/totalDone)*100) : 0;
+    $("profile-stat-done").textContent = totalDone;
+    $("profile-stat-acc").textContent = acc + "%";
+  } else {
+    // Modo deslogado (login / cadastro)
+    $("auth-unlogged-view").style.display = "block";
+    $("auth-logged-view").style.display = "none";
+    switchAuthTab(mode === "signup" ? "signup" : "login");
+  }
+}
+
+function closeAuthModal(){
+  var m = $("auth-modal");
+  if(m) m.hidden = true;
+}
+
+function switchAuthTab(tab){
+  var isLogin = tab === "login";
+  $("tab-btn-login").classList.toggle("on", isLogin);
+  $("tab-btn-signup").classList.toggle("on", !isLogin);
+  $("form-login").style.display = isLogin ? "flex" : "none";
+  $("form-signup").style.display = !isLogin ? "flex" : "none";
+  $("login-msg").className = "auth-msg";
+  $("login-msg").style.display = "none";
+  $("signup-msg").className = "auth-msg";
+  $("signup-msg").style.display = "none";
+}
+
+// Configurar eventos do modal
+$("btn-auth-user").onclick = function(){ openAuthModal(); };
+$("auth-close-btn").onclick = closeAuthModal;
+$("btn-profile-close").onclick = closeAuthModal;
+$("auth-modal").onclick = function(e){ if(e.target === $("auth-modal")) closeAuthModal(); };
+
+$("tab-btn-login").onclick = function(){ switchAuthTab("login"); };
+$("tab-btn-signup").onclick = function(){ switchAuthTab("signup"); };
+
+// Executar Login
+$("btn-submit-login").onclick = function(){
+  var email = ($("inp-login-email").value || "").trim().toLowerCase();
+  var pass = ($("inp-login-pass").value || "").trim();
+  var msg = $("login-msg");
+  if(!email || !pass){
+    msg.className = "auth-msg err";
+    msg.textContent = "Preencha e-mail e senha.";
+    return;
+  }
+  var users = getAuthUsers();
+  var found = users.find(function(x){ return x.email === email && x.pass === pass; });
+  if(!found){
+    msg.className = "auth-msg err";
+    msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha conta, clique em 'Criar Conta'.";
+    return;
+  }
+  setCurrentUser(found);
+  msg.className = "auth-msg ok";
+  msg.textContent = "Login realizado com sucesso! Bem-vindo de volta, " + found.name + ".";
+  setTimeout(function(){
+    closeAuthModal();
+    initGreetingAndPeriods();
+  }, 600);
+};
+
+// Executar Cadastro
+$("btn-submit-signup").onclick = function(){
+  var name = ($("inp-signup-name").value || "").trim();
+  var email = ($("inp-signup-email").value || "").trim().toLowerCase();
+  var pass = ($("inp-signup-pass").value || "").trim();
+  var period = $("inp-signup-period").value || "8";
+  var msg = $("signup-msg");
+  if(!name || !email || !pass){
+    msg.className = "auth-msg err";
+    msg.textContent = "Preencha todos os campos para criar sua conta.";
+    return;
+  }
+  if(pass.length < 4){
+    msg.className = "auth-msg err";
+    msg.textContent = "A senha deve conter no mínimo 4 caracteres.";
+    return;
+  }
+  var users = getAuthUsers();
+  if(users.some(function(x){ return x.email === email; })){
+    msg.className = "auth-msg err";
+    msg.textContent = "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.";
+    return;
+  }
+  var newUser = {
+    id: "usr_" + Date.now(),
+    name: name,
+    email: email,
+    pass: pass,
+    period: period,
+    createdAt: new Date().toISOString()
+  };
+  users.push(newUser);
+  saveAuthUsers(users);
+  setCurrentUser(newUser);
+
+  if(period && period !== "all"){
+    curPeriod = period;
+    sv("dm-period", curPeriod);
+  }
+
+  msg.className = "auth-msg ok";
+  msg.textContent = "Conta criada com sucesso! Carregando seus estudos...";
+  setTimeout(function(){
+    closeAuthModal();
+    initGreetingAndPeriods();
+    buildDashboard();
+    buildAreas();
+  }, 700);
+};
+
+// Modo Convidado
+$("btn-guest-mode").onclick = function(){
+  closeAuthModal();
+};
+
+// Logout
+$("btn-logout").onclick = function(){
+  if(confirm("Deseja sair da sua conta?")){
+    setCurrentUser(null);
+    closeAuthModal();
+    initGreetingAndPeriods();
+  }
+};
+
+// Inicializar interface de autenticação
+updateAuthUI();
 
 // Initialize App Immediately (No Gate!)
 initGreetingAndPeriods();rg();re();buildDashboard();buildAreas();
