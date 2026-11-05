@@ -8,7 +8,8 @@ echo.
 
 set "PATH=%LOCALAPPDATA%\Programs\Git\cmd;%LOCALAPPDATA%\Microsoft\WinGet\Packages\GitHub.cli_Microsoft.Winget.Source_8wekyb3d8bbwe\bin;%PATH%"
 
-echo [1/3] Identificando alteracoes no banco de dados...
+echo [1/3] Sincronizando e identificando alteracoes no banco de dados...
+copy /y desenrolaMed.html index.html >nul 2>nul
 call git add -A
 
 echo [2/3] Registrando as alteracoes...
