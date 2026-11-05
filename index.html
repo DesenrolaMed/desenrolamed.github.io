@@ -394,343 +394,212 @@ body.auth-locked #auth-modal {
 footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18px 0 28px;margin-top:28px;text-align:center}
 
 /* ======================================================== */
-/* RANKING & PÓDIO TOP 10 ESTUDANTES AFYA                   */
+/* RANKING TOP 10 LATERAL COMPACTO (100% DADOS REAIS)       */
 /* ======================================================== */
-.ranking-panel {
-  background: linear-gradient(135deg, rgba(20, 11, 38, 0.95), rgba(10, 6, 20, 0.98));
-  border: 1px solid var(--ln2);
-  border-radius: 16px;
-  padding: 22px 24px;
-  margin: 18px 0 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  position: relative;
-  overflow: hidden;
-}
-.ranking-panel::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, #ffd700, #ff7a00, #ffd700);
-}
-.ranking-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 22px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.ranking-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.ranking-icon-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,122,0,0.15));
-  border: 1px solid rgba(255,215,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: 0 0 16px rgba(255,215,0,0.25);
-}
-.ranking-title {
-  font-size: 1.22rem;
-  font-weight: 800;
-  color: var(--tx);
-  letter-spacing: -0.01em;
-  margin: 0;
-}
-.ranking-subtitle {
-  font-size: 0.82rem;
-  color: var(--mu);
-  margin: 2px 0 0;
-}
-.ranking-live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(61, 220, 151, 0.12);
-  border: 1px solid rgba(61, 220, 151, 0.35);
-  color: var(--ok);
-  padding: 5px 12px;
-  border-radius: 99px;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #3ddc97;
-  box-shadow: 0 0 8px #3ddc97;
-  animation: pulseDot 1.8s infinite;
-}
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.3); }
-}
-
-/* Container do Pódio Olímpico */
-.podium-container {
+.top-layout-grid {
   display: grid;
-  grid-template-columns: 1fr 1.15fr 1fr;
-  align-items: flex-end;
-  gap: 14px;
-  margin: 14px 0 24px;
-  padding: 0 10px;
+  grid-template-columns: 1fr 290px;
+  gap: 22px;
+  align-items: start;
+  margin-top: 14px;
 }
-@media (max-width: 640px) {
-  .podium-container {
+@media (max-width: 980px) {
+  .top-layout-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-    align-items: stretch;
   }
 }
-.podium-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  border-radius: 14px;
-  padding: 16px 12px 0;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-  background: var(--sf);
-  border: 1px solid var(--ln);
-}
-.podium-card:hover {
-  transform: translateY(-4px);
-}
-
-/* 1º Lugar - Ouro com Foguinho */
-.podium-gold {
-  background: linear-gradient(180deg, rgba(255, 215, 0, 0.16) 0%, rgba(20, 12, 35, 0.95) 100%);
-  border: 2px solid #ffd700;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 0 0 1px rgba(255, 215, 0, 0.3) inset;
-  order: 2;
-  z-index: 2;
-}
-@media (max-width: 640px) {
-  .podium-gold { order: 1; }
-}
-.podium-gold .gold-crown-wrapper {
-  position: absolute;
-  top: -24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  animation: floatBounce 2.4s ease-in-out infinite;
-}
-@keyframes floatBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-.gold-crown { font-size: 1.6rem; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8)); }
-.gold-fire { font-size: 1.5rem; animation: fireFlicker 0.9s infinite alternate; }
-@keyframes fireFlicker {
-  0% { transform: scale(1) rotate(-4deg); filter: drop-shadow(0 0 4px #ff5c00); }
-  100% { transform: scale(1.18) rotate(4deg); filter: drop-shadow(0 0 12px #ff2200); }
-}
-
-.podium-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  margin-top: 6px;
-}
-.gold-avatar {
-  background: linear-gradient(135deg, #ffd700, #ff9500);
-  color: #0b0713;
-  width: 56px;
-  height: 56px;
-  font-size: 1.25rem;
-  box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
-}
-
-/* 2º Lugar - Prata */
-.podium-silver {
-  background: linear-gradient(180deg, rgba(203, 213, 225, 0.12) 0%, rgba(20, 12, 35, 0.95) 100%);
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 0 20px rgba(203, 213, 225, 0.18);
-  order: 1;
-}
-@media (max-width: 640px) {
-  .podium-silver { order: 2; }
-}
-.podium-silver .podium-avatar {
-  background: linear-gradient(135deg, #f1f5f9, #94a3b8);
-  color: #0b0713;
-  box-shadow: 0 0 12px rgba(203, 213, 225, 0.4);
-}
-
-/* 3º Lugar - Bronze */
-.podium-bronze {
-  background: linear-gradient(180deg, rgba(205, 127, 50, 0.12) 0%, rgba(20, 12, 35, 0.95) 100%);
-  border: 1px solid #cd7f32;
-  box-shadow: 0 0 20px rgba(205, 127, 50, 0.18);
-  order: 3;
-}
-.podium-bronze .podium-avatar {
-  background: linear-gradient(135deg, #e29b63, #a0522d);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(205, 127, 50, 0.4);
-}
-
-.podium-name {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--tx);
-  max-width: 95%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 4px;
-}
-.podium-period {
-  font-size: 0.74rem;
-  color: var(--mu);
-  margin-bottom: 6px;
-}
-.podium-score {
-  font-weight: 800;
-  font-size: 0.92rem;
-  color: #cbd5e1;
-  margin-bottom: 12px;
-}
-.gold-score {
-  color: #ffd700;
-  font-size: 1.05rem;
-  font-weight: 900;
-  text-shadow: 0 0 10px rgba(255,215,0,0.4);
-}
-.podium-bar {
-  width: 100%;
-  padding: 8px 0;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-weight: 800;
-  font-size: 0.76rem;
-  letter-spacing: 0.08em;
-}
-.gold-bar {
-  background: linear-gradient(90deg, #ffd700, #ff8c00);
-  color: #0b0713;
-  border-radius: 0 0 12px 12px;
-  padding: 12px 0;
-  font-size: 0.84rem;
-}
-.silver-bar {
-  background: linear-gradient(90deg, #94a3b8, #cbd5e1);
-  color: #0b0713;
-  border-radius: 0 0 12px 12px;
-}
-.bronze-bar {
-  background: linear-gradient(90deg, #a0522d, #cd7f32);
-  color: #fff;
-  border-radius: 0 0 12px 12px;
-}
-
-/* 4º ao 10º Lugar */
-.ranking-runners {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-.runner-row {
-  display: grid;
-  grid-template-columns: 42px 1fr auto auto;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--ln);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 0.86rem;
-  transition: background 0.15s, border-color 0.15s;
-}
-.runner-row:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: var(--ln2);
-}
-.runner-row.is-current-user {
-  background: rgba(138,43,226,0.15);
-  border-color: var(--pl);
-  box-shadow: 0 0 12px rgba(138,43,226,0.25);
-}
-.runner-rank {
-  font-weight: 800;
-  color: var(--mu);
-  font-size: 0.88rem;
-  text-align: center;
-}
-.runner-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.top-main-col {
   min-width: 0;
 }
-.runner-name {
-  font-weight: 700;
-  color: var(--tx);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.runner-badge-you {
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 99px;
-  background: var(--ok-bg);
-  border: 1px solid var(--ok);
-  color: var(--ok);
-  text-transform: uppercase;
-}
-.runner-period {
-  font-size: 0.74rem;
-  color: var(--mu);
-  background: var(--in);
-  border: 1px solid var(--ln);
-  padding: 3px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-}
-.runner-score {
-  font-weight: 700;
-  color: var(--tx);
-  font-size: 0.88rem;
-  text-align: right;
-  white-space: nowrap;
-}
-.runner-score strong {
-  color: var(--pl);
+.top-side-col {
+  position: sticky;
+  top: 70px;
 }
 
-/* User Outside Top 10 Notification Card */
-.ranking-user-footer {
-  margin-top: 14px;
-  padding: 10px 14px;
-  background: rgba(138,43,226,0.1);
-  border: 1px dashed var(--pl);
-  border-radius: 10px;
+/* Card do Ranking Lateral: Menor, elegante e discreto */
+.side-ranking-card {
+  background: var(--sf);
+  border: 1px solid var(--ln);
+  border-radius: 14px;
+  padding: 14px 15px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.side-ranking-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ln);
+}
+.side-ranking-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--tx);
+}
+.side-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+  animation: pulseDot 2s infinite;
+}
+
+/* Pódio Lateral Compacto */
+.side-podium-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.side-podium-item {
+  border-radius: 9px;
+  padding: 7px 10px;
+  text-align: left;
+  border: 1px solid var(--ln);
+  background: var(--in);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: transform 0.12s;
+}
+.side-podium-item:hover {
+  transform: translateX(2px);
+}
+
+/* 1º Lugar - Dourado com Foguinho 🔥 */
+.side-podium-item.side-gold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(20, 12, 35, 0.88));
+  border: 1px solid #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.12);
+}
+.side-gold .side-podium-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.side-gold .side-podium-name {
   font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--tx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.side-gold .side-podium-score {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+/* 2º e 3º Lugar em Grade Compacta */
+.side-podium-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.side-silver {
+  background: rgba(203, 213, 225, 0.04);
+  border-color: rgba(203, 213, 225, 0.4);
+}
+.side-silver .side-podium-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+.side-silver .side-podium-name,
+.side-bronze .side-podium-name {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--tx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.side-silver .side-podium-score,
+.side-bronze .side-podium-score {
+  font-size: 0.7rem;
+  color: var(--mu);
+}
+
+.side-bronze {
+  background: rgba(205, 127, 50, 0.04);
+  border-color: rgba(205, 127, 50, 0.4);
+}
+.side-bronze .side-podium-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #cd7f32;
+}
+
+/* Lista Lateral de Corredores (4º ao 10º) */
+.side-runners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.side-runner-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid transparent;
+  font-size: 0.76rem;
+}
+.side-runner-row:hover {
+  background: rgba(255,255,255,0.04);
+}
+.side-runner-row.is-current-user {
+  background: rgba(138,43,226,0.12);
+  border-color: var(--pl);
+}
+.side-runner-rank {
+  font-weight: 700;
+  color: var(--mu);
+  font-size: 0.72rem;
+  text-align: center;
+}
+.side-runner-name {
+  font-weight: 600;
+  color: var(--tx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.side-runner-score {
+  font-weight: 700;
+  color: var(--pl);
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+.side-empty-note {
+  font-size: 0.72rem;
+  color: var(--mu);
+  text-align: center;
+  padding: 8px 6px;
+  line-height: 1.35;
+  background: var(--in);
+  border-radius: 7px;
+  border: 1px dashed var(--ln);
+}
+.side-user-footer {
+  font-size: 0.74rem;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(138,43,226,0.08);
+  border: 1px dashed var(--pl);
+  color: var(--tx);
+  text-align: center;
 }
 
 /* ======================================================== */
@@ -969,106 +838,96 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
     </div>
   </div>
 
-  <!-- RANKING DOS ESTUDANTES AFYA · TOP 10 EM RESOLUÇÃO DE QUESTÕES -->
-  <div class="ranking-panel" id="ranking-panel">
-    <div class="ranking-header">
-      <div class="ranking-title-wrap">
-        <div class="ranking-icon-badge">🏆</div>
-        <div>
-          <h3 class="ranking-title">Ranking dos Estudantes AFYA · Top 10</h3>
-          <p class="ranking-subtitle">Classificação em tempo real por volume de questões resolvidas na plataforma</p>
-        </div>
+  <!-- LAYOUT EM 2 COLUNAS: PRINCIPAL (ESQUERDA) + RANKING LATERAL (DIREITA) -->
+  <div class="top-layout-grid">
+    <!-- COLUNA PRINCIPAL: DISCIPLINAS E RECURSOS -->
+    <div class="top-main-col">
+      <div class="sec-title">
+        <h2 id="areas-sec-title">Disciplinas · Questões por Assunto e Provas</h2>
+        <small>Clique em "Filtrar por Assunto" para montar sua bateria ou acesse as provas</small>
       </div>
-      <div class="ranking-live-badge">
-        <span class="live-dot"></span> <span id="ranking-live-text">Ao vivo · Atualizado</span>
-      </div>
-    </div>
+      <div class="areas" id="ag"></div>
 
-    <!-- PÓDIO (1º, 2º e 3º LUGAR) -->
-    <div class="podium-container" id="podium-container">
-      <!-- 2º LUGAR (Prata) - Esquerda -->
-      <div class="podium-card podium-silver" id="podium-silver">
-        <div class="podium-medal" style="font-size:1.4rem;margin-bottom:4px">🥈</div>
-        <div class="podium-avatar">2º</div>
-        <div class="podium-name" id="podium-silver-name">Dra. Beatriz Lima</div>
-        <div class="podium-period" id="podium-silver-period">8º Período</div>
-        <div class="podium-score" id="podium-silver-score">342 questões</div>
-        <div class="podium-bar silver-bar">
-          <span>2º LUGAR</span>
-        </div>
+      <div class="sec-title">
+        <h2>Recursos de Estudo e Revisão</h2>
       </div>
-
-      <!-- 1º LUGAR (Ouro com Foguinho 🔥) - Centro (Mais alto) -->
-      <div class="podium-card podium-gold" id="podium-gold">
-        <div class="gold-crown-wrapper">
-          <span class="gold-crown">👑</span>
-          <span class="gold-fire">🔥</span>
-        </div>
-        <div class="podium-avatar gold-avatar">1º</div>
-        <div class="podium-name" id="podium-gold-name">Dr. Lucas Albuquerque</div>
-        <div class="podium-period" id="podium-gold-period">8º Período</div>
-        <div class="podium-score gold-score" id="podium-gold-score">🔥 418 questões</div>
-        <div class="podium-bar gold-bar">
-          <span>1º LUGAR 🔥</span>
-        </div>
-      </div>
-
-      <!-- 3º LUGAR (Bronze) - Direita -->
-      <div class="podium-card podium-bronze" id="podium-bronze">
-        <div class="podium-medal" style="font-size:1.4rem;margin-bottom:4px">🥉</div>
-        <div class="podium-avatar">3º</div>
-        <div class="podium-name" id="podium-bronze-name">Dr. Gabriel Santos</div>
-        <div class="podium-period" id="podium-bronze-period">7º Período</div>
-        <div class="podium-score" id="podium-bronze-score">289 questões</div>
-        <div class="podium-bar bronze-bar">
-          <span>3º LUGAR</span>
-        </div>
+      <div class="tools-grid">
+        <button class="tool-card" id="go-provas">
+          <b><span>Catálogo de Provas e PDFs</span><span>›</span></b>
+          <small>28 baterias/provas na íntegra e 29 PDFs oficiais para abrir na tela.</small>
+        </button>
+        <button class="tool-card" id="go-erros">
+          <b><span>Caderno de Erros e Revisão</span><span id="card-erros-badge" style="color:var(--mu);font-weight:500;font-size:.78rem"></span></b>
+          <small id="card-erros-txt">Refaça questões que você errou ou marcou para revisar.</small>
+        </button>
+        <button class="tool-card" id="go-guias">
+          <b><span>Guias Clínicos &amp; Deep Research</span><span>›</span></b>
+          <small id="card-guias-txt">Resumos objetivos dos temas das provas + pesquisas salvas.</small>
+        </button>
+        <button class="tool-card" id="go-fc">
+          <b><span>Flashcards</span><span id="card-fc-badge" style="color:var(--mu);font-weight:500;font-size:.78rem"></span></b>
+          <small id="card-fc-txt">Memorização rápida de critérios, escores e condutas.</small>
+        </button>
+        <button class="tool-card" id="go-ia">
+          <b><span>NotebookLM, Gemini &amp; Backup</span><span>›</span></b>
+          <small>Exporte dossiê de erros, copie prompts e salve seu backup.</small>
+        </button>
+        <button class="tool-card" id="go-metas">
+          <b><span>Metas e Datas de Prova</span><span>›</span></b>
+          <small id="gn">Checklist de estudos e contagem regressiva de provas.</small>
+        </button>
       </div>
     </div>
 
-    <!-- TABELA / LISTA DO 4º AO 10º LUGAR -->
-    <div class="ranking-runners" id="ranking-runners">
-      <!-- Linhas geradas dinamicamente via JS -->
-    </div>
+    <!-- COLUNA LATERAL: RANKING TOP 10 MENOR E DISCRETO -->
+    <aside class="top-side-col">
+      <div class="side-ranking-card" id="ranking-panel">
+        <div class="side-ranking-header">
+          <div class="side-ranking-title">
+            <span>🏆</span>
+            <b>Ranking · Top 10</b>
+          </div>
+          <span class="side-live-dot" title="Atualizado em tempo real com questões reais"></span>
+        </div>
 
-    <!-- RODAPÉ DA POSIÇÃO PESSOAL DO ALUNO -->
-    <div id="ranking-user-footer-box"></div>
-  </div>
+        <!-- PÓDIO COMPACTO (1º, 2º e 3º LUGAR) -->
+        <div class="side-podium-wrap">
+          <!-- 1º Lugar (Dourado com Foguinho 🔥) -->
+          <div class="side-podium-item side-gold" id="side-podium-1">
+            <div class="side-podium-badge">
+              <span>👑</span> 1º LUGAR <span style="animation:fireFlicker .9s infinite alternate">🔥</span>
+            </div>
+            <div class="side-podium-name" id="podium-gold-name">—</div>
+            <div class="side-podium-score" id="podium-gold-score">0 questões</div>
+          </div>
 
-  <div class="sec-title">
-    <h2 id="areas-sec-title">Disciplinas · Questões por Assunto e Provas</h2>
-    <small>Clique em "Filtrar por Assunto" para montar sua bateria ou acesse as provas da disciplina</small>
-  </div>
-  <div class="areas" id="ag"></div>
+          <!-- 2º e 3º Lugar em duo compacto -->
+          <div class="side-podium-duo">
+            <!-- 2º Lugar (Prata) -->
+            <div class="side-podium-item side-silver" id="side-podium-2">
+              <div class="side-podium-badge">🥈 2º LUGAR</div>
+              <div class="side-podium-name" id="podium-silver-name">—</div>
+              <div class="side-podium-score" id="podium-silver-score">0 q.</div>
+            </div>
 
-  <div class="sec-title">
-    <h2>Recursos de Estudo e Revisão</h2>
-  </div>
-  <div class="tools-grid">
-    <button class="tool-card" id="go-provas">
-      <b><span>Catálogo de Provas e PDFs</span><span>›</span></b>
-      <small>28 baterias/provas na íntegra e 29 PDFs oficiais para abrir na tela.</small>
-    </button>
-    <button class="tool-card" id="go-erros">
-      <b><span>Caderno de Erros e Revisão</span><span id="card-erros-badge" style="color:var(--mu);font-weight:500;font-size:.78rem"></span></b>
-      <small id="card-erros-txt">Refaça questões que você errou ou marcou para revisar.</small>
-    </button>
-    <button class="tool-card" id="go-guias">
-      <b><span>Guias Clínicos &amp; Deep Research</span><span>›</span></b>
-      <small id="card-guias-txt">Resumos objetivos dos temas das provas + pesquisas salvas.</small>
-    </button>
-    <button class="tool-card" id="go-fc">
-      <b><span>Flashcards</span><span id="card-fc-badge" style="color:var(--mu);font-weight:500;font-size:.78rem"></span></b>
-      <small id="card-fc-txt">Memorização rápida de critérios, escores e condutas.</small>
-    </button>
-    <button class="tool-card" id="go-ia">
-      <b><span>NotebookLM, Gemini &amp; Backup</span><span>›</span></b>
-      <small>Exporte dossiê de erros, copie prompts e salve seu backup.</small>
-    </button>
-    <button class="tool-card" id="go-metas">
-      <b><span>Metas e Datas de Prova</span><span>›</span></b>
-      <small id="gn">Checklist de estudos e contagem regressiva de provas.</small>
-    </button>
+            <!-- 3º Lugar (Bronze) -->
+            <div class="side-podium-item side-bronze" id="side-podium-3">
+              <div class="side-podium-badge">🥉 3º LUGAR</div>
+              <div class="side-podium-name" id="podium-bronze-name">—</div>
+              <div class="side-podium-score" id="podium-bronze-score">0 q.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LISTA DO 4º AO 10º LUGAR -->
+        <div class="side-runners-list" id="ranking-runners">
+          <!-- Gerado dinamicamente com alunos reais -->
+        </div>
+
+        <!-- POSIÇÃO PESSOAL -->
+        <div id="ranking-user-footer-box"></div>
+      </div>
+    </aside>
   </div>
 </section>
 
@@ -3688,66 +3547,48 @@ renderLeaderboard();
 startOnlineHeartbeat();
 
 // ========================================================
-// SISTEMA DE RANKING TOP 10, ADMIN E MONITORAMENTO ONLINE
+// SISTEMA DE RANKING TOP 10, ADMIN E MONITORAMENTO ONLINE (100% DADOS REAIS)
 // ========================================================
-var DEFAULT_PEERS = [
-  { id: "peer_1", name: "Dr. Lucas Albuquerque", email: "lucas.albuquerque@afya.med.br", period: "8", totalSolved: 418, correctRate: 84, lastActive: Date.now() - 60000, activity: "Simulado 8º Período - CI III", createdAt: "2026-02-15" },
-  { id: "peer_2", name: "Dra. Beatriz Lima", email: "beatriz.lima@afya.med.br", period: "8", totalSolved: 342, correctRate: 88, lastActive: Date.now() - 120000, activity: "Caderno de Erros de Pediatria", createdAt: "2026-02-18" },
-  { id: "peer_3", name: "Dr. Gabriel Santos", email: "gabriel.santos@afya.med.br", period: "7", totalSolved: 289, correctRate: 79, lastActive: Date.now() - 240000, activity: "Bateria de Clínica Cirúrgica", createdAt: "2026-02-20" },
-  { id: "peer_4", name: "Dra. Mariana Costa", email: "mariana.costa@afya.med.br", period: "7", totalSolved: 254, correctRate: 82, lastActive: Date.now() - 1800000, activity: "Guias Clínicos de Cardiologia", createdAt: "2026-02-22" },
-  { id: "peer_5", name: "Dr. Matheus Rocha", email: "matheus.rocha@afya.med.br", period: "int", totalSolved: 215, correctRate: 76, lastActive: Date.now() - 3600000, activity: "Questões de Trauma e ATLS", createdAt: "2026-02-25" },
-  { id: "peer_6", name: "Dra. Camila Nogueira", email: "camila.nogueira@afya.med.br", period: "6", totalSolved: 188, correctRate: 85, lastActive: Date.now() - 5400000, activity: "Flashcards Farmacologia", createdAt: "2026-03-01" },
-  { id: "peer_7", name: "Dr. Felipe Arantes", email: "felipe.arantes@afya.med.br", period: "8", totalSolved: 162, correctRate: 80, lastActive: Date.now() - 7200000, activity: "Integradora 8º Período", createdAt: "2026-03-05" },
-  { id: "peer_8", name: "Dra. Larissa Meireles", email: "larissa.meireles@afya.med.br", period: "5", totalSolved: 140, correctRate: 74, lastActive: Date.now() - 10800000, activity: "Ginecologia e Obstetrícia", createdAt: "2026-03-10" },
-  { id: "peer_9", name: "Dr. Thiago Bezerra", email: "thiago.bezerra@afya.med.br", period: "7", totalSolved: 119, correctRate: 81, lastActive: Date.now() - 14400000, activity: "HAM VII - Habilidades Médicas", createdAt: "2026-03-12" },
-  { id: "peer_10", name: "Dra. Juliana Peixoto", email: "juliana.peixoto@afya.med.br", period: "4", totalSolved: 98, correctRate: 83, lastActive: Date.now() - 18000000, activity: "Semiologia Médica", createdAt: "2026-03-15" }
-];
-
 function isAdminUser(u){
   if(!u) return false;
   var email = (u.email || "").trim().toLowerCase();
   return email === "igorinteraminense@gmail.com";
 }
 
+// Retorna exclusivamente participantes reais cadastrados na plataforma
 function getAllParticipants(){
-  var peers = JSON.parse(JSON.stringify(DEFAULT_PEERS));
   var users = getAuthUsers();
   var currentUser = getCurrentUser();
   var myDone = Object.keys(hist || {}).length;
 
   var userMap = {};
-  peers.forEach(function(p){ userMap[p.id] = p; });
 
   users.forEach(function(u){
     var count = u.totalSolved || 0;
     if(currentUser && u.email === currentUser.email){
       count = Math.max(count, myDone);
     }
-    userMap[u.id || u.email] = {
+    userMap[u.email] = {
       id: u.id || u.email,
       name: u.name,
       email: u.email,
       period: u.period || "8",
       totalSolved: count,
-      correctRate: u.correctRate || 80,
       lastActive: u.lastActive || Date.now(),
-      activity: "Resolvendo questões na plataforma",
       isCurrentUser: currentUser ? (u.email === currentUser.email) : false,
       role: u.role || (isAdminUser(u) ? "admin" : "user"),
       createdAt: u.createdAt || new Date().toISOString()
     };
   });
 
-  if(currentUser && !users.some(function(x){ return x.email === currentUser.email; })){
-    userMap["cur_usr"] = {
-      id: "cur_usr",
+  if(currentUser && !userMap[currentUser.email]){
+    userMap[currentUser.email] = {
+      id: currentUser.id || "cur_usr",
       name: currentUser.name,
       email: currentUser.email,
       period: currentUser.period || "8",
       totalSolved: myDone,
-      correctRate: 85,
       lastActive: Date.now(),
-      activity: "Ativo agora na plataforma",
       isCurrentUser: true,
       role: currentUser.role || (isAdminUser(currentUser) ? "admin" : "user"),
       createdAt: currentUser.createdAt || new Date().toISOString()
@@ -3755,75 +3596,85 @@ function getAllParticipants(){
   }
 
   var list = Object.keys(userMap).map(function(k){ return userMap[k]; });
+  // Ordena estritamente por questões reais resolvidas
   list.sort(function(a, b){
-    if(b.totalSolved !== a.totalSolved) return b.totalSolved - a.totalSolved;
-    return (b.correctRate || 0) - (a.correctRate || 0);
+    return (b.totalSolved || 0) - (a.totalSolved || 0);
   });
   return list;
 }
 
 function renderLeaderboard(){
   var participants = getAllParticipants();
-  if(!participants || participants.length < 3) return;
+  var activeParticipants = participants.filter(function(p){ return (p.totalSolved || 0) > 0; });
 
   // 1º Lugar (Ouro com Foguinho 🔥)
-  var p1 = participants[0];
-  if($("podium-gold-name")) $("podium-gold-name").textContent = p1.name + (p1.isCurrentUser ? " (Você)" : "");
-  if($("podium-gold-period")) $("podium-gold-period").textContent = periodLabel(p1.period) || "8º Período";
-  if($("podium-gold-score")) $("podium-gold-score").textContent = "🔥 " + p1.totalSolved + " questões";
+  if($("podium-gold-name")){
+    if(activeParticipants.length > 0 && activeParticipants[0].totalSolved > 0){
+      var p1 = activeParticipants[0];
+      $("podium-gold-name").textContent = p1.name + (p1.isCurrentUser ? " (Você)" : "");
+      $("podium-gold-score").textContent = "🔥 " + p1.totalSolved + " questões";
+    } else {
+      $("podium-gold-name").textContent = "Aguardando resoluções...";
+      $("podium-gold-score").textContent = "0 questões";
+    }
+  }
 
   // 2º Lugar (Prata)
-  var p2 = participants[1];
-  if($("podium-silver-name")) $("podium-silver-name").textContent = p2.name + (p2.isCurrentUser ? " (Você)" : "");
-  if($("podium-silver-period")) $("podium-silver-period").textContent = periodLabel(p2.period) || "8º Período";
-  if($("podium-silver-score")) $("podium-silver-score").textContent = p2.totalSolved + " questões";
+  if($("podium-silver-name")){
+    if(activeParticipants.length > 1 && activeParticipants[1].totalSolved > 0){
+      var p2 = activeParticipants[1];
+      $("podium-silver-name").textContent = p2.name + (p2.isCurrentUser ? " (Você)" : "");
+      $("podium-silver-score").textContent = p2.totalSolved + " q.";
+    } else {
+      $("podium-silver-name").textContent = "—";
+      $("podium-silver-score").textContent = "0 q.";
+    }
+  }
 
   // 3º Lugar (Bronze)
-  var p3 = participants[2];
-  if($("podium-bronze-name")) $("podium-bronze-name").textContent = p3.name + (p3.isCurrentUser ? " (Você)" : "");
-  if($("podium-bronze-period")) $("podium-bronze-period").textContent = periodLabel(p3.period) || "7º Período";
-  if($("podium-bronze-score")) $("podium-bronze-score").textContent = p3.totalSolved + " questões";
+  if($("podium-bronze-name")){
+    if(activeParticipants.length > 2 && activeParticipants[2].totalSolved > 0){
+      var p3 = activeParticipants[2];
+      $("podium-bronze-name").textContent = p3.name + (p3.isCurrentUser ? " (Você)" : "");
+      $("podium-bronze-score").textContent = p3.totalSolved + " q.";
+    } else {
+      $("podium-bronze-name").textContent = "—";
+      $("podium-bronze-score").textContent = "0 q.";
+    }
+  }
 
   // 4º ao 10º Lugar
   var runnersContainer = $("ranking-runners");
   if(runnersContainer){
     var runnersHtml = "";
-    for(var i = 3; i < Math.min(participants.length, 10); i++){
-      var p = participants[i];
-      var rank = i + 1;
-      var isYou = !!p.isCurrentUser;
-      runnersHtml += 
-        '<div class="runner-row ' + (isYou ? 'is-current-user' : '') + '">' +
-          '<div class="runner-rank">' + rank + 'º</div>' +
-          '<div class="runner-info">' +
-            '<span class="runner-name">' + p.name + '</span>' +
-            (isYou ? '<span class="runner-badge-you">⭐ Você</span>' : '') +
-          '</div>' +
-          '<div class="runner-period">' + (periodLabel(p.period) || p.period + 'º Per.') + '</div>' +
-          '<div class="runner-score"><strong>' + p.totalSolved + '</strong> <small style="color:var(--mu);font-size:.76rem">questões</small></div>' +
-        '</div>';
+    var runners = activeParticipants.slice(3, 10);
+    if(runners.length > 0){
+      runners.forEach(function(p, idx){
+        var rank = idx + 4;
+        var isYou = !!p.isCurrentUser;
+        runnersHtml +=
+          '<div class="side-runner-row ' + (isYou ? 'is-current-user' : '') + '">' +
+            '<span class="side-runner-rank">' + rank + 'º</span>' +
+            '<span class="side-runner-name">' + p.name + (isYou ? ' (Você)' : '') + '</span>' +
+            '<span class="side-runner-score">' + p.totalSolved + ' q.</span>' +
+          '</div>';
+      });
+    } else if(activeParticipants.length <= 3) {
+      runnersHtml = '<div class="side-empty-note">Ainda não há outros estudantes com questões resolvidas. Conforme novos alunos realizarem questões, o ranking será preenchido.</div>';
     }
     runnersContainer.innerHTML = runnersHtml;
   }
 
-  // Rodapé com posição do aluno atual caso esteja fora do Top 10
+  // Posição pessoal
   var footerBox = $("ranking-user-footer-box");
   var curUser = getCurrentUser();
   if(footerBox && curUser){
-    var myIndex = participants.findIndex(function(x){ return x.isCurrentUser; });
-    var myRank = myIndex + 1;
     var mySolved = Object.keys(hist || {}).length;
-    if(myRank > 10){
-      var needed = (participants[9].totalSolved - mySolved) + 1;
-      footerBox.innerHTML = 
-        '<div class="ranking-user-footer">' +
-          '<span>📍 Sua Posição Atual: <strong>#' + myRank + ' ' + (curUser.name || 'Dr(a). Aluno') + '</strong> · <strong>' + mySolved + ' questões resolvidas</strong></span>' +
-          '<span style="color:var(--pl)">Faltam apenas <strong>' + needed + ' questões</strong> para você entrar no Top 10!</span>' +
-        '</div>';
-    } else if(myRank > 0){
-      footerBox.innerHTML = 
-        '<div class="ranking-user-footer" style="border-color:var(--ok);background:var(--ok-bg)">' +
-          '<span style="color:var(--ok)">🎉 Parabéns, ' + (curUser.name || 'Doutor(a)') + '! Você está classificado no <strong>Top 10</strong> da AFYA com <strong>' + mySolved + ' questões</strong>!</span>' +
+    var myRank = activeParticipants.findIndex(function(x){ return x.isCurrentUser; }) + 1;
+    if(myRank > 0){
+      footerBox.innerHTML =
+        '<div class="side-user-footer">' +
+          'Sua posição: <strong>#' + myRank + 'º</strong> (' + mySolved + ' questões)' +
         '</div>';
     } else {
       footerBox.innerHTML = '';
@@ -3886,46 +3737,52 @@ function renderAdminPanel(){
   var currentUser = getCurrentUser();
   var now = Date.now();
 
-  // Calcular métricas
+  // Estudantes online estritamente reais (ativos nos últimos 5 min)
+  var presence = ld("dm_online_presence", {});
   var onlineList = [];
-
-  // Estudantes online simulados da coorte + usuário atual
-  DEFAULT_PEERS.forEach(function(p){
-    if((now - p.lastActive) < 300000){ // ativo nos últimos 5 min
+  Object.keys(presence).forEach(function(k){
+    var p = presence[k];
+    if(p && p.lastActive && (now - p.lastActive) < 300000){
       onlineList.push({
         name: p.name,
         email: p.email,
         period: p.period,
-        activity: p.activity,
-        isYou: false
+        activity: p.activity || "Resolvendo questões",
+        isYou: currentUser && (p.email === currentUser.email)
       });
     }
   });
 
-  if(currentUser){
+  if(currentUser && !onlineList.some(function(x){ return x.email === currentUser.email; })){
     onlineList.unshift({
       name: currentUser.name + " (Admin)",
       email: currentUser.email,
       period: currentUser.period,
-      activity: "Gerenciando painel de administração",
+      activity: "Painel Administrativo",
       isYou: true
     });
   }
 
   // Preencher métricas nos cards
   if($("admin-stat-online")) $("admin-stat-online").textContent = onlineList.length;
-  if($("admin-stat-total-users")) $("admin-stat-total-users").textContent = Math.max(users.length, 1) + " cadastrados";
-  
+  if($("admin-stat-total-users")) $("admin-stat-total-users").textContent = users.length + " cadastrados";
+
   var totalQuestions = 0;
   participants.forEach(function(p){ totalQuestions += (p.totalSolved || 0); });
   if($("admin-stat-total-answers")) $("admin-stat-total-answers").textContent = totalQuestions.toLocaleString("pt-BR");
-  
-  if(participants[0]){
-    if($("admin-stat-leader")) $("admin-stat-leader").textContent = participants[0].name;
-    if($("admin-stat-leader-score")) $("admin-stat-leader-score").textContent = "🔥 " + participants[0].totalSolved + " questões";
+
+  if($("admin-stat-leader")){
+    var activeP = participants.filter(function(p){ return (p.totalSolved || 0) > 0; });
+    if(activeP.length > 0){
+      $("admin-stat-leader").textContent = activeP[0].name;
+      if($("admin-stat-leader-score")) $("admin-stat-leader-score").textContent = "🔥 " + activeP[0].totalSolved + " questões";
+    } else {
+      $("admin-stat-leader").textContent = "Nenhum ainda";
+      if($("admin-stat-leader-score")) $("admin-stat-leader-score").textContent = "0 questões";
+    }
   }
 
-  // Renderizar Lista de Alunos Online
+  // Renderizar Lista de Alunos Online Reais
   var onlineContainer = $("admin-online-list");
   if(onlineContainer){
     var onlineHtml = "";
@@ -3939,12 +3796,12 @@ function renderAdminPanel(){
           '</div>' +
           '<div class="online-user-details">' +
             '<div class="online-user-name">' + u.name + (u.isYou ? ' <span class="runner-badge-you">Você</span>' : '') + '</div>' +
-            '<div class="online-user-act"><span>🟢 ' + (u.activity || 'Estudando') + '</span></div>' +
+            '<div class="online-user-act"><span>🟢 ' + (u.activity || 'Ativo na plataforma') + '</span></div>' +
           '</div>' +
           '<span class="runner-period">' + (periodLabel(u.period) || u.period + 'º') + '</span>' +
         '</div>';
     });
-    onlineContainer.innerHTML = onlineHtml || '<div style="color:var(--mu);font-size:.85rem">Nenhum aluno ativo no momento.</div>';
+    onlineContainer.innerHTML = onlineHtml || '<div style="color:var(--mu);font-size:.85rem">Nenhum aluno ativo no momento além de você.</div>';
   }
 
   // Renderizar Tabela de Estudantes Cadastrados
@@ -3959,20 +3816,10 @@ function renderAdminUserTable(){
   var registered = getAuthUsers();
   var currentUser = getCurrentUser();
 
-  // Se não houver usuários cadastrados no localStorage, mescla com os alunos da plataforma
-  var tableData = [];
-  if(registered.length === 0 && currentUser){
-    tableData.push(currentUser);
-  } else {
-    tableData = registered.slice();
+  var tableData = registered.slice();
+  if(currentUser && !tableData.some(function(t){ return t.email === currentUser.email; })){
+    tableData.unshift(currentUser);
   }
-
-  // Inclui peers para o admin visualizar a base acadêmica completa
-  DEFAULT_PEERS.forEach(function(p){
-    if(!tableData.some(function(t){ return t.email === p.email; })){
-      tableData.push(p);
-    }
-  });
 
   if(filter){
     tableData = tableData.filter(function(u){
@@ -3987,7 +3834,7 @@ function renderAdminUserTable(){
     var isYou = currentUser && (u.email === currentUser.email);
     var isAdmin = isAdminUser(u);
     var isOnline = isYou || ((Date.now() - (u.lastActive || 0)) < 300000);
-    var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString("pt-BR") : "15/02/2026";
+    var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString("pt-BR") : "Hoje";
     var solved = u.totalSolved || 0;
     if(isYou) solved = Math.max(solved, Object.keys(hist || {}).length);
 
@@ -4008,8 +3855,8 @@ function renderAdminUserTable(){
         '<td><span class="runner-period">' + (periodLabel(u.period) || u.period + 'º') + '</span></td>' +
         '<td><strong style="color:var(--pl)">' + solved + '</strong> questões</td>' +
         '<td>' +
-          (isOnline ? 
-            '<span class="status-pill status-online">🟢 Online</span>' : 
+          (isOnline ?
+            '<span class="status-pill status-online">🟢 Online</span>' :
             '<span class="status-pill status-offline">⚪ Offline</span>'
           ) +
         '</td>' +
