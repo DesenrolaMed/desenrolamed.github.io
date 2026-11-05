@@ -1487,9 +1487,7 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
         <p style="font-size:.76rem;color:var(--mu);margin:4px 0 8px">Você tem controle total sobre alunos e ranking.</p>
         <button type="button" id="btn-profile-go-admin" class="auth-btn-main" style="margin:0;padding:8px 12px;font-size:.82rem;background:linear-gradient(135deg,#eab308,#ca8a04);color:#0b0713;border-color:#fef08a">Acessar Painel do Administrador</button>
       </div>
-      <div id="profile-nonadmin-box" style="text-align:center;margin-bottom:8px">
-        <button type="button" id="btn-activate-admin-mode" style="background:transparent;border:0;color:var(--mu);font-size:.74rem;text-decoration:underline;cursor:pointer">É o administrador? Ativar Painel Admin</button>
-      </div>
+
       <div style="display:flex;flex-direction:column;gap:8px">
         <button type="button" id="btn-logout" class="cf" style="background:var(--er-bg);border:1px solid var(--er);color:var(--er);margin:0">Sair da Conta (Logout)</button>
         <button type="button" id="btn-profile-close" class="auth-btn-guest">Continuar Estudando</button>
@@ -3418,9 +3416,49 @@ $("btn-reset-hist").onclick=function(){
 // ==========================================
 // SISTEMA DE AUTENTICAÇÃO E PERFIL DO ALUNO
 // ==========================================
-function getAuthUsers(){ return ld("dm_auth_users", []); }
+function getAuthUsers(){
+  var list = ld("dm_auth_users", []);
+  var hasIgor = false;
+  var changed = false;
+  list.forEach(function(u){
+    var isIgor = (u.email || "").trim().toLowerCase() === "igorinteraminense@gmail.com";
+    if(isIgor){
+      hasIgor = true;
+      if(u.role !== "admin"){ u.role = "admin"; changed = true; }
+    } else {
+      if(u.role === "admin"){ u.role = "user"; changed = true; }
+    }
+  });
+  if(!hasIgor){
+    list.push({
+      id: "usr_igorinteraminense",
+      name: "Igor Interaminense",
+      email: "igorinteraminense@gmail.com",
+      pass: "123456",
+      period: "8",
+      role: "admin",
+      createdAt: "2026-02-01T12:00:00.000Z"
+    });
+    changed = true;
+  }
+  if(changed){ sv("dm_auth_users", list); }
+  return list;
+}
 function saveAuthUsers(users){ sv("dm_auth_users", users); }
-function getCurrentUser(){ return ld("dm_current_user", null); }
+function getCurrentUser(){
+  var u = ld("dm_current_user", null);
+  if(u){
+    var isIgor = (u.email || "").trim().toLowerCase() === "igorinteraminense@gmail.com";
+    if(isIgor && u.role !== "admin"){
+      u.role = "admin";
+      sv("dm_current_user", u);
+    } else if(!isIgor && u.role === "admin"){
+      u.role = "user";
+      sv("dm_current_user", u);
+    }
+  }
+  return u;
+}
 function setCurrentUser(user){ sv("dm_current_user", user); updateAuthUI(); }
 
 function updateAuthUI(){
@@ -3527,26 +3565,7 @@ $("btn-profile-close").onclick = closeAuthModal;
 if($("btn-profile-go-admin")){
   $("btn-profile-go-admin").onclick = function(){ closeAuthModal(); show("admin"); };
 }
-if($("btn-activate-admin-mode")){
-  $("btn-activate-admin-mode").onclick = function(){
-    var key = prompt("Digite a chave de administrador (ou 'admin'/'igor'):", "");
-    if(key && (key.toLowerCase() === "admin" || key.toLowerCase() === "igor" || key.toLowerCase() === "desenrola" || key === "1234")){
-      var u = getCurrentUser();
-      if(u){
-        u.role = "admin";
-        setCurrentUser(u);
-        var users = getAuthUsers();
-        var found = users.find(function(x){ return x.id === u.id || x.email === u.email; });
-        if(found){ found.role = "admin"; saveAuthUsers(users); }
-        alert("Acesso de Administrador ativado com sucesso! O botão '👑 Painel Admin' agora está visível no menu.");
-        openAuthModal();
-        updateAuthUI();
-      }
-    } else if(key !== null) {
-      alert("Chave incorreta.");
-    }
-  };
-}
+
 if($("admin-user-search")){
   $("admin-user-search").oninput = renderAdminUserTable;
 }
@@ -3582,10 +3601,12 @@ $("btn-submit-login").onclick = function(){
     msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha cadastro, clique na aba 'Criar Conta'.";
     return;
   }
-  if(found.email.includes("admin") || found.email.includes("igor") || (found.name && found.name.toLowerCase().includes("igor"))){
+  if(found.email.trim().toLowerCase() === "igorinteraminense@gmail.com"){
     found.role = "admin";
-    saveAuthUsers(users);
+  } else {
+    found.role = "user";
   }
+  saveAuthUsers(users);
   setCurrentUser(found);
   document.body.classList.remove("auth-locked");
   msg.className = "auth-msg ok";
@@ -3619,7 +3640,7 @@ $("btn-submit-signup").onclick = function(){
     msg.textContent = "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.";
     return;
   }
-  var isAdm = (email.includes("admin") || email.includes("igor") || name.toLowerCase().includes("igor"));
+  var isAdm = (email.trim().toLowerCase() === "igorinteraminense@gmail.com");
   var newUser = {
     id: "usr_" + Date.now(),
     name: name,
@@ -3684,11 +3705,8 @@ var DEFAULT_PEERS = [
 
 function isAdminUser(u){
   if(!u) return false;
-  if(u.role === "admin" || u.isAdmin === true) return true;
-  var email = (u.email || "").toLowerCase();
-  var name = (u.name || "").toLowerCase();
-  if(email.includes("admin") || email.includes("igor") || name.includes("admin") || name.includes("igor")) return true;
-  return false;
+  var email = (u.email || "").trim().toLowerCase();
+  return email === "igorinteraminense@gmail.com";
 }
 
 function getAllParticipants(){
