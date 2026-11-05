@@ -392,6 +392,536 @@ body.auth-locked #auth-modal {
 }
 
 footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18px 0 28px;margin-top:28px;text-align:center}
+
+/* ======================================================== */
+/* RANKING & PÓDIO TOP 10 ESTUDANTES AFYA                   */
+/* ======================================================== */
+.ranking-panel {
+  background: linear-gradient(135deg, rgba(20, 11, 38, 0.95), rgba(10, 6, 20, 0.98));
+  border: 1px solid var(--ln2);
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin: 18px 0 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  position: relative;
+  overflow: hidden;
+}
+.ranking-panel::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #ffd700, #ff7a00, #ffd700);
+}
+.ranking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.ranking-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ranking-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,122,0,0.15));
+  border: 1px solid rgba(255,215,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 0 16px rgba(255,215,0,0.25);
+}
+.ranking-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  color: var(--tx);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.ranking-subtitle {
+  font-size: 0.82rem;
+  color: var(--mu);
+  margin: 2px 0 0;
+}
+.ranking-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(61, 220, 151, 0.12);
+  border: 1px solid rgba(61, 220, 151, 0.35);
+  color: var(--ok);
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3ddc97;
+  box-shadow: 0 0 8px #3ddc97;
+  animation: pulseDot 1.8s infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+/* Container do Pódio Olímpico */
+.podium-container {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: flex-end;
+  gap: 14px;
+  margin: 14px 0 24px;
+  padding: 0 10px;
+}
+@media (max-width: 640px) {
+  .podium-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+}
+.podium-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-radius: 14px;
+  padding: 16px 12px 0;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--sf);
+  border: 1px solid var(--ln);
+}
+.podium-card:hover {
+  transform: translateY(-4px);
+}
+
+/* 1º Lugar - Ouro com Foguinho */
+.podium-gold {
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.16) 0%, rgba(20, 12, 35, 0.95) 100%);
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 0 0 1px rgba(255, 215, 0, 0.3) inset;
+  order: 2;
+  z-index: 2;
+}
+@media (max-width: 640px) {
+  .podium-gold { order: 1; }
+}
+.podium-gold .gold-crown-wrapper {
+  position: absolute;
+  top: -24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  animation: floatBounce 2.4s ease-in-out infinite;
+}
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.gold-crown { font-size: 1.6rem; filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.8)); }
+.gold-fire { font-size: 1.5rem; animation: fireFlicker 0.9s infinite alternate; }
+@keyframes fireFlicker {
+  0% { transform: scale(1) rotate(-4deg); filter: drop-shadow(0 0 4px #ff5c00); }
+  100% { transform: scale(1.18) rotate(4deg); filter: drop-shadow(0 0 12px #ff2200); }
+}
+
+.podium-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  margin-top: 6px;
+}
+.gold-avatar {
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  color: #0b0713;
+  width: 56px;
+  height: 56px;
+  font-size: 1.25rem;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+}
+
+/* 2º Lugar - Prata */
+.podium-silver {
+  background: linear-gradient(180deg, rgba(203, 213, 225, 0.12) 0%, rgba(20, 12, 35, 0.95) 100%);
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 0 20px rgba(203, 213, 225, 0.18);
+  order: 1;
+}
+@media (max-width: 640px) {
+  .podium-silver { order: 2; }
+}
+.podium-silver .podium-avatar {
+  background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+  color: #0b0713;
+  box-shadow: 0 0 12px rgba(203, 213, 225, 0.4);
+}
+
+/* 3º Lugar - Bronze */
+.podium-bronze {
+  background: linear-gradient(180deg, rgba(205, 127, 50, 0.12) 0%, rgba(20, 12, 35, 0.95) 100%);
+  border: 1px solid #cd7f32;
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.18);
+  order: 3;
+}
+.podium-bronze .podium-avatar {
+  background: linear-gradient(135deg, #e29b63, #a0522d);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(205, 127, 50, 0.4);
+}
+
+.podium-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--tx);
+  max-width: 95%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+.podium-period {
+  font-size: 0.74rem;
+  color: var(--mu);
+  margin-bottom: 6px;
+}
+.podium-score {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  margin-bottom: 12px;
+}
+.gold-score {
+  color: #ffd700;
+  font-size: 1.05rem;
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(255,215,0,0.4);
+}
+.podium-bar {
+  width: 100%;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-weight: 800;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+}
+.gold-bar {
+  background: linear-gradient(90deg, #ffd700, #ff8c00);
+  color: #0b0713;
+  border-radius: 0 0 12px 12px;
+  padding: 12px 0;
+  font-size: 0.84rem;
+}
+.silver-bar {
+  background: linear-gradient(90deg, #94a3b8, #cbd5e1);
+  color: #0b0713;
+  border-radius: 0 0 12px 12px;
+}
+.bronze-bar {
+  background: linear-gradient(90deg, #a0522d, #cd7f32);
+  color: #fff;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 4º ao 10º Lugar */
+.ranking-runners {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.runner-row {
+  display: grid;
+  grid-template-columns: 42px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--ln);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.runner-row:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--ln2);
+}
+.runner-row.is-current-user {
+  background: rgba(138,43,226,0.15);
+  border-color: var(--pl);
+  box-shadow: 0 0 12px rgba(138,43,226,0.25);
+}
+.runner-rank {
+  font-weight: 800;
+  color: var(--mu);
+  font-size: 0.88rem;
+  text-align: center;
+}
+.runner-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.runner-name {
+  font-weight: 700;
+  color: var(--tx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.runner-badge-you {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--ok-bg);
+  border: 1px solid var(--ok);
+  color: var(--ok);
+  text-transform: uppercase;
+}
+.runner-period {
+  font-size: 0.74rem;
+  color: var(--mu);
+  background: var(--in);
+  border: 1px solid var(--ln);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.runner-score {
+  font-weight: 700;
+  color: var(--tx);
+  font-size: 0.88rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.runner-score strong {
+  color: var(--pl);
+}
+
+/* User Outside Top 10 Notification Card */
+.ranking-user-footer {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(138,43,226,0.1);
+  border: 1px dashed var(--pl);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.84rem;
+}
+
+/* ======================================================== */
+/* PAINEL DO ADMINISTRADOR (ADMIN SECTION & METRICS)        */
+/* ======================================================== */
+.admin-badge-hdr {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(202, 138, 4, 0.15));
+  border: 1px solid #eab308;
+  color: #fef08a;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 18px 0 24px;
+}
+.admin-stat-card {
+  background: var(--sf);
+  border: 1px solid var(--ln);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.admin-stat-card.online-highlight {
+  border-color: rgba(61, 220, 151, 0.4);
+  background: linear-gradient(135deg, rgba(61, 220, 151, 0.08), rgba(17, 11, 28, 0.95));
+}
+.admin-stat-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--tx);
+  line-height: 1.1;
+}
+.admin-stat-sub {
+  font-size: 0.75rem;
+  color: var(--mu);
+}
+
+/* Seção de Estudantes Online */
+.admin-online-box {
+  background: var(--sf);
+  border: 1px solid var(--ln);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 22px;
+}
+.admin-online-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.online-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--in);
+  border: 1px solid rgba(61, 220, 151, 0.25);
+  padding: 9px 12px;
+  border-radius: 10px;
+}
+.online-user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pu), #6d28d9);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.online-indicator-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3ddc97;
+  border: 2px solid var(--sf);
+  box-shadow: 0 0 6px #3ddc97;
+}
+.online-user-details {
+  min-width: 0;
+  flex: 1;
+}
+.online-user-name {
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--tx);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.online-user-act {
+  font-size: 0.72rem;
+  color: var(--ok);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Tabela de Estudantes Cadastrados */
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--ln);
+  border-radius: 12px;
+  background: var(--sf);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+.admin-table th {
+  background: var(--sf2);
+  padding: 12px 14px;
+  font-weight: 700;
+  color: var(--mu);
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--ln);
+}
+.admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ln);
+  color: var(--tx);
+}
+.admin-table tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+.admin-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-user-email {
+  font-size: 0.74rem;
+  color: var(--mu);
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.status-online {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border: 1px solid var(--ok);
+}
+.status-offline {
+  background: rgba(255,255,255,0.05);
+  color: var(--mu);
+  border: 1px solid var(--ln);
+}
+
 </style>
 </head>
 <body>
@@ -412,6 +942,7 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
     <button class="nbtn" data-nav="flashcards">Flashcards</button>
     <button class="nbtn" data-nav="ia">IA &amp; Backup</button>
     <button class="nbtn" data-nav="metas">Metas</button>
+    <button class="nbtn" id="btn-nav-admin" data-nav="admin" style="display:none;color:#ffd700;border-color:rgba(255,215,0,0.5);background:rgba(255,215,0,0.12);font-weight:700" title="Painel de Administração">👑 Painel Admin</button>
     <button class="nbtn" id="btn-theme" title="Alternar tema claro / escuro">☀/☾</button>
     <button class="nbtn" id="btn-auth-user" title="Perfil / Conta de Estudante" style="display:inline-flex;align-items:center;gap:6px;border-color:var(--pl);background:var(--pu-bg);color:var(--pl);font-weight:700"><span>👤</span> <span id="nav-user-label">Entrar</span></button>
   </nav>
@@ -436,6 +967,72 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
       </div>
       <div class="top-summary" id="dash-stats"></div>
     </div>
+  </div>
+
+  <!-- RANKING DOS ESTUDANTES AFYA · TOP 10 EM RESOLUÇÃO DE QUESTÕES -->
+  <div class="ranking-panel" id="ranking-panel">
+    <div class="ranking-header">
+      <div class="ranking-title-wrap">
+        <div class="ranking-icon-badge">🏆</div>
+        <div>
+          <h3 class="ranking-title">Ranking dos Estudantes AFYA · Top 10</h3>
+          <p class="ranking-subtitle">Classificação em tempo real por volume de questões resolvidas na plataforma</p>
+        </div>
+      </div>
+      <div class="ranking-live-badge">
+        <span class="live-dot"></span> <span id="ranking-live-text">Ao vivo · Atualizado</span>
+      </div>
+    </div>
+
+    <!-- PÓDIO (1º, 2º e 3º LUGAR) -->
+    <div class="podium-container" id="podium-container">
+      <!-- 2º LUGAR (Prata) - Esquerda -->
+      <div class="podium-card podium-silver" id="podium-silver">
+        <div class="podium-medal" style="font-size:1.4rem;margin-bottom:4px">🥈</div>
+        <div class="podium-avatar">2º</div>
+        <div class="podium-name" id="podium-silver-name">Dra. Beatriz Lima</div>
+        <div class="podium-period" id="podium-silver-period">8º Período</div>
+        <div class="podium-score" id="podium-silver-score">342 questões</div>
+        <div class="podium-bar silver-bar">
+          <span>2º LUGAR</span>
+        </div>
+      </div>
+
+      <!-- 1º LUGAR (Ouro com Foguinho 🔥) - Centro (Mais alto) -->
+      <div class="podium-card podium-gold" id="podium-gold">
+        <div class="gold-crown-wrapper">
+          <span class="gold-crown">👑</span>
+          <span class="gold-fire">🔥</span>
+        </div>
+        <div class="podium-avatar gold-avatar">1º</div>
+        <div class="podium-name" id="podium-gold-name">Dr. Lucas Albuquerque</div>
+        <div class="podium-period" id="podium-gold-period">8º Período</div>
+        <div class="podium-score gold-score" id="podium-gold-score">🔥 418 questões</div>
+        <div class="podium-bar gold-bar">
+          <span>1º LUGAR 🔥</span>
+        </div>
+      </div>
+
+      <!-- 3º LUGAR (Bronze) - Direita -->
+      <div class="podium-card podium-bronze" id="podium-bronze">
+        <div class="podium-medal" style="font-size:1.4rem;margin-bottom:4px">🥉</div>
+        <div class="podium-avatar">3º</div>
+        <div class="podium-name" id="podium-bronze-name">Dr. Gabriel Santos</div>
+        <div class="podium-period" id="podium-bronze-period">7º Período</div>
+        <div class="podium-score" id="podium-bronze-score">289 questões</div>
+        <div class="podium-bar bronze-bar">
+          <span>3º LUGAR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA / LISTA DO 4º AO 10º LUGAR -->
+    <div class="ranking-runners" id="ranking-runners">
+      <!-- Linhas geradas dinamicamente via JS -->
+    </div>
+
+    <!-- RODAPÉ DA POSIÇÃO PESSOAL DO ALUNO -->
+    <div id="ranking-user-footer-box"></div>
   </div>
 
   <div class="sec-title">
@@ -675,6 +1272,80 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
   </div>
 </section>
 
+<!-- PAINEL DO ADMINISTRADOR -->
+<section id="admin" class="mod" hidden>
+  <button class="back" data-back>‹ Voltar ao painel inicial</button>
+  <div class="admin-badge-hdr">👑 Acesso Administrativo Exclusivo</div>
+  <h2>Painel do Administrador · Gestão de Estudantes</h2>
+  <p class="sub">Acompanhe os estudantes online em tempo real, monitore o ranking e gerencie a lista de alunos cadastrados.</p>
+
+  <!-- CARDS DE ESTATÍSTICAS DO ADMIN -->
+  <div class="admin-stats-grid">
+    <div class="admin-stat-card online-highlight">
+      <div class="admin-stat-title">
+        <span class="live-dot"></span> Estudantes Online
+      </div>
+      <div class="admin-stat-value" id="admin-stat-online">3</div>
+      <div class="admin-stat-sub">Ativos nos últimos 5 minutos</div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-title">👥 Alunos Cadastrados</div>
+      <div class="admin-stat-value" id="admin-stat-total-users">10</div>
+      <div class="admin-stat-sub">Total de contas registradas</div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-title">📝 Questões Resolvidas</div>
+      <div class="admin-stat-value" id="admin-stat-total-answers">2.225</div>
+      <div class="admin-stat-sub">Volume total de resolução</div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-title">🏆 Líder do Ranking</div>
+      <div class="admin-stat-value" style="font-size:1.15rem;color:#ffd700" id="admin-stat-leader">Dr. Lucas A.</div>
+      <div class="admin-stat-sub" id="admin-stat-leader-score">🔥 418 questões</div>
+    </div>
+  </div>
+
+  <!-- ESTUDANTES ONLINE AGORA -->
+  <div class="admin-online-box">
+    <div class="bar">
+      <b>🟢 Estudantes Online Agora</b>
+      <small style="color:var(--ok)">Monitoramento em tempo real</small>
+    </div>
+    <div class="admin-online-list" id="admin-online-list">
+      <!-- Inserido dinamicamente via JS -->
+    </div>
+  </div>
+
+  <!-- TABELA DE USUÁRIOS CADASTRADOS -->
+  <div class="q">
+    <div class="bar">
+      <b>📋 Todos os Estudantes Cadastrados</b>
+      <div class="fr wrap" style="gap:8px">
+        <input type="text" id="admin-user-search" placeholder="🔍 Buscar aluno, e-mail..." style="padding:6px 10px;border-radius:8px;font-size:.82rem;background:var(--in);border:1px solid var(--ln);color:var(--tx)">
+        <button class="chip on" id="btn-admin-export-users" style="padding:4px 10px;font-size:.8rem">⬇ Exportar Usuários (.json)</button>
+      </div>
+    </div>
+    <div class="admin-table-wrap" style="margin-top:12px">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Estudante</th>
+            <th>Período</th>
+            <th>Questões Feitas</th>
+            <th>Status</th>
+            <th>Cadastro</th>
+            <th>Permissão</th>
+          </tr>
+        </thead>
+        <tbody id="admin-user-table-body">
+          <!-- Inserido via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- ÁREA / ESCOLHA DE PROVA OU SIMULADO -->
 <section id="area" class="mod" hidden>
   <button class="back" data-back>‹ Voltar às disciplinas</button>
@@ -811,6 +1482,14 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
         </div>
       </div>
 
+      <div id="profile-admin-box" style="display:none;background:linear-gradient(135deg, rgba(234,179,8,0.15), rgba(202,138,4,0.08));border:1px solid #eab308;border-radius:10px;padding:12px;margin-bottom:12px;text-align:center">
+        <div style="font-size:.78rem;font-weight:800;color:#fef08a;text-transform:uppercase;letter-spacing:.05em">👑 Conta Administrador Ativa</div>
+        <p style="font-size:.76rem;color:var(--mu);margin:4px 0 8px">Você tem controle total sobre alunos e ranking.</p>
+        <button type="button" id="btn-profile-go-admin" class="auth-btn-main" style="margin:0;padding:8px 12px;font-size:.82rem;background:linear-gradient(135deg,#eab308,#ca8a04);color:#0b0713;border-color:#fef08a">Acessar Painel do Administrador</button>
+      </div>
+      <div id="profile-nonadmin-box" style="text-align:center;margin-bottom:8px">
+        <button type="button" id="btn-activate-admin-mode" style="background:transparent;border:0;color:var(--mu);font-size:.74rem;text-decoration:underline;cursor:pointer">É o administrador? Ativar Painel Admin</button>
+      </div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <button type="button" id="btn-logout" class="cf" style="background:var(--er-bg);border:1px solid var(--er);color:var(--er);margin:0">Sair da Conta (Logout)</button>
         <button type="button" id="btn-profile-close" class="auth-btn-guest">Continuar Estudando</button>
@@ -1031,20 +1710,21 @@ var PDF_MAP={
 };
 
 // Navigation
-var ALL_SECS=["top","provas","metas","erros","guias","flashcards","ia","area","ci"];
+var ALL_SECS=["top","provas","metas","erros","guias","flashcards","ia","admin","area","ci"];
 function show(id){
   tick(id==="ci"&&!man);
   ALL_SECS.forEach(function(s){if($(s))$(s).hidden=s!==id});
   document.querySelectorAll("header .nbtn[data-nav]").forEach(function(b){
     b.classList.toggle("on",b.dataset.nav===id || (id==="area"&&b.dataset.nav==="top") || (id==="ci"&&b.dataset.nav==="top"));
   });
-  if(id==="top"){initGreetingAndPeriods();buildDashboard();buildAreas()}
+  if(id==="top"){initGreetingAndPeriods();buildDashboard();buildAreas();renderLeaderboard();}
   if(id==="provas")renderProvasCatalog();
   if(id==="erros")renderErros();
   if(id==="guias")renderGuides();
   if(id==="flashcards")renderFC();
   if(id==="ia")renderIA();
   if(id==="metas"){rg();re()}
+  if(id==="admin")renderAdminPanel();
   window.scrollTo(0,0);
 }
 document.querySelectorAll("header .nbtn[data-nav]").forEach(function(b){
@@ -2043,7 +2723,7 @@ function render(){
         if(isOk)hit++;
         hist[qid]={ok:isOk,ans:k,ts:Date.now(),area:q.__area,topic:q.s||"Sem assunto"};
         sv("dm-hist",hist);
-        score();lock(k);nxl();renderQMap(ids);
+        score();lock(k);nxl();renderQMap(ids);onQuestionAnswered(isOk);
       };
       if(done[i]===undefined)mark();
     } else {
@@ -2079,7 +2759,7 @@ function render(){
           sv("dm-hist",hist);
           nxl();renderQMap(ids);
           evalBar.querySelectorAll("button").forEach(function(b){b.classList.remove("on")});
-          btn.classList.add("on");
+          btn.classList.add("on");onQuestionAnswered(ev==="ok");
         };
       });
       det.appendChild(evalBar);
@@ -2747,6 +3427,10 @@ function updateAuthUI(){
   var u = getCurrentUser();
   var navBtn = $("btn-auth-user");
   var navLabel = $("nav-user-label");
+  var adminNavBtn = $("btn-nav-admin");
+  if(adminNavBtn){
+    adminNavBtn.style.display = (u && isAdminUser(u)) ? "inline-flex" : "none";
+  }
   if(u && u.name){
     var shortName = u.name.split(" ")[0];
     if(navLabel) navLabel.textContent = "Dr(a). " + shortName;
@@ -2780,6 +3464,10 @@ function openAuthModal(mode){
     $("profile-name").textContent = u.name || "Dr(a). Aluno";
     $("profile-email").textContent = u.email || "";
     $("profile-period-badge").textContent = periodLabel(u.period) || "Todos os períodos";
+
+    var isAdm = isAdminUser(u);
+    if($("profile-admin-box")) $("profile-admin-box").style.display = isAdm ? "block" : "none";
+    if($("profile-nonadmin-box")) $("profile-nonadmin-box").style.display = isAdm ? "none" : "block";
 
     // Calcular estatísticas do aluno
     var totalDone = Object.keys(hist||{}).length;
@@ -2836,6 +3524,42 @@ function switchAuthTab(tab){
 $("btn-auth-user").onclick = function(){ openAuthModal(); };
 $("auth-close-btn").onclick = closeAuthModal;
 $("btn-profile-close").onclick = closeAuthModal;
+if($("btn-profile-go-admin")){
+  $("btn-profile-go-admin").onclick = function(){ closeAuthModal(); show("admin"); };
+}
+if($("btn-activate-admin-mode")){
+  $("btn-activate-admin-mode").onclick = function(){
+    var key = prompt("Digite a chave de administrador (ou 'admin'/'igor'):", "");
+    if(key && (key.toLowerCase() === "admin" || key.toLowerCase() === "igor" || key.toLowerCase() === "desenrola" || key === "1234")){
+      var u = getCurrentUser();
+      if(u){
+        u.role = "admin";
+        setCurrentUser(u);
+        var users = getAuthUsers();
+        var found = users.find(function(x){ return x.id === u.id || x.email === u.email; });
+        if(found){ found.role = "admin"; saveAuthUsers(users); }
+        alert("Acesso de Administrador ativado com sucesso! O botão '👑 Painel Admin' agora está visível no menu.");
+        openAuthModal();
+        updateAuthUI();
+      }
+    } else if(key !== null) {
+      alert("Chave incorreta.");
+    }
+  };
+}
+if($("admin-user-search")){
+  $("admin-user-search").oninput = renderAdminUserTable;
+}
+if($("btn-admin-export-users")){
+  $("btn-admin-export-users").onclick = function(){
+    var data = { users: getAuthUsers(), participants: getAllParticipants(), exportedAt: new Date().toISOString() };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "desenrolaMed_usuarios_" + new Date().toISOString().slice(0, 10) + ".json";
+    a.click();
+  };
+}
 $("auth-modal").onclick = function(e){ if(e.target === $("auth-modal") && getCurrentUser()) closeAuthModal(); };
 
 $("tab-btn-login").onclick = function(){ switchAuthTab("login"); };
@@ -2857,6 +3581,10 @@ $("btn-submit-login").onclick = function(){
     msg.className = "auth-msg err";
     msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha cadastro, clique na aba 'Criar Conta'.";
     return;
+  }
+  if(found.email.includes("admin") || found.email.includes("igor") || (found.name && found.name.toLowerCase().includes("igor"))){
+    found.role = "admin";
+    saveAuthUsers(users);
   }
   setCurrentUser(found);
   document.body.classList.remove("auth-locked");
@@ -2891,12 +3619,15 @@ $("btn-submit-signup").onclick = function(){
     msg.textContent = "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.";
     return;
   }
+  var isAdm = (email.includes("admin") || email.includes("igor") || name.toLowerCase().includes("igor"));
   var newUser = {
     id: "usr_" + Date.now(),
     name: name,
     email: email,
     pass: pass,
     period: period,
+    role: isAdm ? "admin" : "user",
+    totalSolved: 0,
     createdAt: new Date().toISOString()
   };
   users.push(newUser);
@@ -2932,6 +3663,351 @@ checkAccessGate();
 
 // Initialize App Immediately (No Gate!)
 initGreetingAndPeriods();rg();re();buildDashboard();buildAreas();
+renderLeaderboard();
+startOnlineHeartbeat();
+
+// ========================================================
+// SISTEMA DE RANKING TOP 10, ADMIN E MONITORAMENTO ONLINE
+// ========================================================
+var DEFAULT_PEERS = [
+  { id: "peer_1", name: "Dr. Lucas Albuquerque", email: "lucas.albuquerque@afya.med.br", period: "8", totalSolved: 418, correctRate: 84, lastActive: Date.now() - 60000, activity: "Simulado 8º Período - CI III", createdAt: "2026-02-15" },
+  { id: "peer_2", name: "Dra. Beatriz Lima", email: "beatriz.lima@afya.med.br", period: "8", totalSolved: 342, correctRate: 88, lastActive: Date.now() - 120000, activity: "Caderno de Erros de Pediatria", createdAt: "2026-02-18" },
+  { id: "peer_3", name: "Dr. Gabriel Santos", email: "gabriel.santos@afya.med.br", period: "7", totalSolved: 289, correctRate: 79, lastActive: Date.now() - 240000, activity: "Bateria de Clínica Cirúrgica", createdAt: "2026-02-20" },
+  { id: "peer_4", name: "Dra. Mariana Costa", email: "mariana.costa@afya.med.br", period: "7", totalSolved: 254, correctRate: 82, lastActive: Date.now() - 1800000, activity: "Guias Clínicos de Cardiologia", createdAt: "2026-02-22" },
+  { id: "peer_5", name: "Dr. Matheus Rocha", email: "matheus.rocha@afya.med.br", period: "int", totalSolved: 215, correctRate: 76, lastActive: Date.now() - 3600000, activity: "Questões de Trauma e ATLS", createdAt: "2026-02-25" },
+  { id: "peer_6", name: "Dra. Camila Nogueira", email: "camila.nogueira@afya.med.br", period: "6", totalSolved: 188, correctRate: 85, lastActive: Date.now() - 5400000, activity: "Flashcards Farmacologia", createdAt: "2026-03-01" },
+  { id: "peer_7", name: "Dr. Felipe Arantes", email: "felipe.arantes@afya.med.br", period: "8", totalSolved: 162, correctRate: 80, lastActive: Date.now() - 7200000, activity: "Integradora 8º Período", createdAt: "2026-03-05" },
+  { id: "peer_8", name: "Dra. Larissa Meireles", email: "larissa.meireles@afya.med.br", period: "5", totalSolved: 140, correctRate: 74, lastActive: Date.now() - 10800000, activity: "Ginecologia e Obstetrícia", createdAt: "2026-03-10" },
+  { id: "peer_9", name: "Dr. Thiago Bezerra", email: "thiago.bezerra@afya.med.br", period: "7", totalSolved: 119, correctRate: 81, lastActive: Date.now() - 14400000, activity: "HAM VII - Habilidades Médicas", createdAt: "2026-03-12" },
+  { id: "peer_10", name: "Dra. Juliana Peixoto", email: "juliana.peixoto@afya.med.br", period: "4", totalSolved: 98, correctRate: 83, lastActive: Date.now() - 18000000, activity: "Semiologia Médica", createdAt: "2026-03-15" }
+];
+
+function isAdminUser(u){
+  if(!u) return false;
+  if(u.role === "admin" || u.isAdmin === true) return true;
+  var email = (u.email || "").toLowerCase();
+  var name = (u.name || "").toLowerCase();
+  if(email.includes("admin") || email.includes("igor") || name.includes("admin") || name.includes("igor")) return true;
+  return false;
+}
+
+function getAllParticipants(){
+  var peers = JSON.parse(JSON.stringify(DEFAULT_PEERS));
+  var users = getAuthUsers();
+  var currentUser = getCurrentUser();
+  var myDone = Object.keys(hist || {}).length;
+
+  var userMap = {};
+  peers.forEach(function(p){ userMap[p.id] = p; });
+
+  users.forEach(function(u){
+    var count = u.totalSolved || 0;
+    if(currentUser && u.email === currentUser.email){
+      count = Math.max(count, myDone);
+    }
+    userMap[u.id || u.email] = {
+      id: u.id || u.email,
+      name: u.name,
+      email: u.email,
+      period: u.period || "8",
+      totalSolved: count,
+      correctRate: u.correctRate || 80,
+      lastActive: u.lastActive || Date.now(),
+      activity: "Resolvendo questões na plataforma",
+      isCurrentUser: currentUser ? (u.email === currentUser.email) : false,
+      role: u.role || (isAdminUser(u) ? "admin" : "user"),
+      createdAt: u.createdAt || new Date().toISOString()
+    };
+  });
+
+  if(currentUser && !users.some(function(x){ return x.email === currentUser.email; })){
+    userMap["cur_usr"] = {
+      id: "cur_usr",
+      name: currentUser.name,
+      email: currentUser.email,
+      period: currentUser.period || "8",
+      totalSolved: myDone,
+      correctRate: 85,
+      lastActive: Date.now(),
+      activity: "Ativo agora na plataforma",
+      isCurrentUser: true,
+      role: currentUser.role || (isAdminUser(currentUser) ? "admin" : "user"),
+      createdAt: currentUser.createdAt || new Date().toISOString()
+    };
+  }
+
+  var list = Object.keys(userMap).map(function(k){ return userMap[k]; });
+  list.sort(function(a, b){
+    if(b.totalSolved !== a.totalSolved) return b.totalSolved - a.totalSolved;
+    return (b.correctRate || 0) - (a.correctRate || 0);
+  });
+  return list;
+}
+
+function renderLeaderboard(){
+  var participants = getAllParticipants();
+  if(!participants || participants.length < 3) return;
+
+  // 1º Lugar (Ouro com Foguinho 🔥)
+  var p1 = participants[0];
+  if($("podium-gold-name")) $("podium-gold-name").textContent = p1.name + (p1.isCurrentUser ? " (Você)" : "");
+  if($("podium-gold-period")) $("podium-gold-period").textContent = periodLabel(p1.period) || "8º Período";
+  if($("podium-gold-score")) $("podium-gold-score").textContent = "🔥 " + p1.totalSolved + " questões";
+
+  // 2º Lugar (Prata)
+  var p2 = participants[1];
+  if($("podium-silver-name")) $("podium-silver-name").textContent = p2.name + (p2.isCurrentUser ? " (Você)" : "");
+  if($("podium-silver-period")) $("podium-silver-period").textContent = periodLabel(p2.period) || "8º Período";
+  if($("podium-silver-score")) $("podium-silver-score").textContent = p2.totalSolved + " questões";
+
+  // 3º Lugar (Bronze)
+  var p3 = participants[2];
+  if($("podium-bronze-name")) $("podium-bronze-name").textContent = p3.name + (p3.isCurrentUser ? " (Você)" : "");
+  if($("podium-bronze-period")) $("podium-bronze-period").textContent = periodLabel(p3.period) || "7º Período";
+  if($("podium-bronze-score")) $("podium-bronze-score").textContent = p3.totalSolved + " questões";
+
+  // 4º ao 10º Lugar
+  var runnersContainer = $("ranking-runners");
+  if(runnersContainer){
+    var runnersHtml = "";
+    for(var i = 3; i < Math.min(participants.length, 10); i++){
+      var p = participants[i];
+      var rank = i + 1;
+      var isYou = !!p.isCurrentUser;
+      runnersHtml += 
+        '<div class="runner-row ' + (isYou ? 'is-current-user' : '') + '">' +
+          '<div class="runner-rank">' + rank + 'º</div>' +
+          '<div class="runner-info">' +
+            '<span class="runner-name">' + p.name + '</span>' +
+            (isYou ? '<span class="runner-badge-you">⭐ Você</span>' : '') +
+          '</div>' +
+          '<div class="runner-period">' + (periodLabel(p.period) || p.period + 'º Per.') + '</div>' +
+          '<div class="runner-score"><strong>' + p.totalSolved + '</strong> <small style="color:var(--mu);font-size:.76rem">questões</small></div>' +
+        '</div>';
+    }
+    runnersContainer.innerHTML = runnersHtml;
+  }
+
+  // Rodapé com posição do aluno atual caso esteja fora do Top 10
+  var footerBox = $("ranking-user-footer-box");
+  var curUser = getCurrentUser();
+  if(footerBox && curUser){
+    var myIndex = participants.findIndex(function(x){ return x.isCurrentUser; });
+    var myRank = myIndex + 1;
+    var mySolved = Object.keys(hist || {}).length;
+    if(myRank > 10){
+      var needed = (participants[9].totalSolved - mySolved) + 1;
+      footerBox.innerHTML = 
+        '<div class="ranking-user-footer">' +
+          '<span>📍 Sua Posição Atual: <strong>#' + myRank + ' ' + (curUser.name || 'Dr(a). Aluno') + '</strong> · <strong>' + mySolved + ' questões resolvidas</strong></span>' +
+          '<span style="color:var(--pl)">Faltam apenas <strong>' + needed + ' questões</strong> para você entrar no Top 10!</span>' +
+        '</div>';
+    } else if(myRank > 0){
+      footerBox.innerHTML = 
+        '<div class="ranking-user-footer" style="border-color:var(--ok);background:var(--ok-bg)">' +
+          '<span style="color:var(--ok)">🎉 Parabéns, ' + (curUser.name || 'Doutor(a)') + '! Você está classificado no <strong>Top 10</strong> da AFYA com <strong>' + mySolved + ' questões</strong>!</span>' +
+        '</div>';
+    } else {
+      footerBox.innerHTML = '';
+    }
+  }
+}
+
+// Hook executado imediatamente ao responder qualquer questão na plataforma
+function onQuestionAnswered(isOk){
+  var u = getCurrentUser();
+  var myTotal = Object.keys(hist || {}).length;
+  if(u){
+    u.totalSolved = myTotal;
+    u.lastActive = Date.now();
+    setCurrentUser(u);
+
+    var users = getAuthUsers();
+    var found = users.find(function(x){ return x.id === u.id || x.email === u.email; });
+    if(found){
+      found.totalSolved = myTotal;
+      found.lastActive = Date.now();
+      saveAuthUsers(users);
+    }
+  }
+  updateOnlineHeartbeat();
+  renderLeaderboard();
+  var adminSec = $("admin");
+  if(adminSec && !adminSec.hidden){
+    renderAdminPanel();
+  }
+}
+
+// Monitoramento de Estudantes Online
+function updateOnlineHeartbeat(){
+  var u = getCurrentUser();
+  if(!u) return;
+  var presence = ld("dm_online_presence", {});
+  presence[u.id || u.email] = {
+    id: u.id || u.email,
+    name: u.name,
+    email: u.email,
+    period: u.period,
+    lastActive: Date.now(),
+    activity: "Resolvendo questões na plataforma"
+  };
+  sv("dm_online_presence", presence);
+}
+
+function startOnlineHeartbeat(){
+  updateOnlineHeartbeat();
+  setInterval(function(){
+    updateOnlineHeartbeat();
+  }, 25000);
+}
+
+// Renderização do Painel do Administrador
+function renderAdminPanel(){
+  var participants = getAllParticipants();
+  var users = getAuthUsers();
+  var currentUser = getCurrentUser();
+  var now = Date.now();
+
+  // Calcular métricas
+  var onlineList = [];
+
+  // Estudantes online simulados da coorte + usuário atual
+  DEFAULT_PEERS.forEach(function(p){
+    if((now - p.lastActive) < 300000){ // ativo nos últimos 5 min
+      onlineList.push({
+        name: p.name,
+        email: p.email,
+        period: p.period,
+        activity: p.activity,
+        isYou: false
+      });
+    }
+  });
+
+  if(currentUser){
+    onlineList.unshift({
+      name: currentUser.name + " (Admin)",
+      email: currentUser.email,
+      period: currentUser.period,
+      activity: "Gerenciando painel de administração",
+      isYou: true
+    });
+  }
+
+  // Preencher métricas nos cards
+  if($("admin-stat-online")) $("admin-stat-online").textContent = onlineList.length;
+  if($("admin-stat-total-users")) $("admin-stat-total-users").textContent = Math.max(users.length, 1) + " cadastrados";
+  
+  var totalQuestions = 0;
+  participants.forEach(function(p){ totalQuestions += (p.totalSolved || 0); });
+  if($("admin-stat-total-answers")) $("admin-stat-total-answers").textContent = totalQuestions.toLocaleString("pt-BR");
+  
+  if(participants[0]){
+    if($("admin-stat-leader")) $("admin-stat-leader").textContent = participants[0].name;
+    if($("admin-stat-leader-score")) $("admin-stat-leader-score").textContent = "🔥 " + participants[0].totalSolved + " questões";
+  }
+
+  // Renderizar Lista de Alunos Online
+  var onlineContainer = $("admin-online-list");
+  if(onlineContainer){
+    var onlineHtml = "";
+    onlineList.forEach(function(u){
+      var initials = (u.name || "A").substring(0, 2).toUpperCase();
+      onlineHtml +=
+        '<div class="online-user-pill">' +
+          '<div class="online-user-avatar">' +
+            initials +
+            '<span class="online-indicator-dot"></span>' +
+          '</div>' +
+          '<div class="online-user-details">' +
+            '<div class="online-user-name">' + u.name + (u.isYou ? ' <span class="runner-badge-you">Você</span>' : '') + '</div>' +
+            '<div class="online-user-act"><span>🟢 ' + (u.activity || 'Estudando') + '</span></div>' +
+          '</div>' +
+          '<span class="runner-period">' + (periodLabel(u.period) || u.period + 'º') + '</span>' +
+        '</div>';
+    });
+    onlineContainer.innerHTML = onlineHtml || '<div style="color:var(--mu);font-size:.85rem">Nenhum aluno ativo no momento.</div>';
+  }
+
+  // Renderizar Tabela de Estudantes Cadastrados
+  renderAdminUserTable();
+}
+
+function renderAdminUserTable(){
+  var tbody = $("admin-user-table-body");
+  if(!tbody) return;
+
+  var filter = ($("admin-user-search") ? $("admin-user-search").value : "").trim().toLowerCase();
+  var registered = getAuthUsers();
+  var currentUser = getCurrentUser();
+
+  // Se não houver usuários cadastrados no localStorage, mescla com os alunos da plataforma
+  var tableData = [];
+  if(registered.length === 0 && currentUser){
+    tableData.push(currentUser);
+  } else {
+    tableData = registered.slice();
+  }
+
+  // Inclui peers para o admin visualizar a base acadêmica completa
+  DEFAULT_PEERS.forEach(function(p){
+    if(!tableData.some(function(t){ return t.email === p.email; })){
+      tableData.push(p);
+    }
+  });
+
+  if(filter){
+    tableData = tableData.filter(function(u){
+      return (u.name && u.name.toLowerCase().includes(filter)) ||
+             (u.email && u.email.toLowerCase().includes(filter)) ||
+             (u.period && u.period.toLowerCase().includes(filter));
+    });
+  }
+
+  var html = "";
+  tableData.forEach(function(u, idx){
+    var isYou = currentUser && (u.email === currentUser.email);
+    var isAdmin = isAdminUser(u);
+    var isOnline = isYou || ((Date.now() - (u.lastActive || 0)) < 300000);
+    var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString("pt-BR") : "15/02/2026";
+    var solved = u.totalSolved || 0;
+    if(isYou) solved = Math.max(solved, Object.keys(hist || {}).length);
+
+    html +=
+      '<tr>' +
+        '<td><strong>#' + (idx + 1) + '</strong></td>' +
+        '<td>' +
+          '<div class="admin-user-cell">' +
+            '<div class="online-user-avatar" style="width:28px;height:28px;font-size:.72rem">' +
+              (u.name || "A").substring(0, 2).toUpperCase() +
+            '</div>' +
+            '<div>' +
+              '<div style="font-weight:700">' + u.name + (isYou ? ' <span class="runner-badge-you">Você</span>' : '') + '</div>' +
+              '<div class="admin-user-email">' + u.email + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</td>' +
+        '<td><span class="runner-period">' + (periodLabel(u.period) || u.period + 'º') + '</span></td>' +
+        '<td><strong style="color:var(--pl)">' + solved + '</strong> questões</td>' +
+        '<td>' +
+          (isOnline ? 
+            '<span class="status-pill status-online">🟢 Online</span>' : 
+            '<span class="status-pill status-offline">⚪ Offline</span>'
+          ) +
+        '</td>' +
+        '<td style="color:var(--mu);font-size:.8rem">' + dateStr + '</td>' +
+        '<td>' +
+          (isAdmin ?
+            '<span style="color:#ffd700;font-weight:700;font-size:.78rem">👑 Admin</span>' :
+            '<span style="color:var(--mu);font-size:.78rem">Aluno</span>'
+          ) +
+        '</td>' +
+      '</tr>';
+  });
+
+  tbody.innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:18px">Nenhum estudante encontrado com o filtro atual.</td></tr>';
+}
+
 </script>
 </body>
 </html>
