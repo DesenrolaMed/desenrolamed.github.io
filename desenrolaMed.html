@@ -1606,6 +1606,75 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
   </div>
 </section>
 
+<!-- ============================================================
+     SEÇÃO: CHAT ABERTO DOS ESTUDANTES (COM FILTROS & CANAIS)
+     ============================================================ -->
+<section id="chat" class="mod" hidden>
+  <button class="back" data-back>‹ Voltar ao painel inicial</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px">
+    <div>
+      <div class="admin-badge-hdr" style="background:rgba(56,189,248,0.12);color:#38bdf8;border-color:rgba(56,189,248,0.4)">💬 Comunidade &amp; Grupos de Estudo</div>
+      <h2 style="margin:4px 0">Chat Aberto dos Estudantes</h2>
+      <p class="sub" style="margin:0">Tire dúvidas, discuta questões e troque bizus com colegas de Medicina por período acadêmico em tempo real.</p>
+    </div>
+    <div id="chat-global-status" class="chat-status-pill chat-status-connecting">
+      <span class="status-dot"></span> <span id="chat-status-text">Conectando...</span>
+    </div>
+  </div>
+
+  <div class="chat-wrapper">
+    <!-- BARRA LATERAL DE CANAIS -->
+    <div class="chat-channels-panel">
+      <div class="chat-channels-hdr">
+        <h3><span>💬</span> Canais de Grupo</h3>
+        <span style="font-size:0.7rem;color:var(--mu)" id="chat-channels-count">10 Canais</span>
+      </div>
+      <div class="chat-channels-list" id="chat-channels-list">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </div>
+
+    <!-- PAINEL PRINCIPAL DE CONVERSA -->
+    <div class="chat-main-panel">
+      <!-- HEADER DO CANAL -->
+      <div class="chat-main-hdr">
+        <div class="chat-main-title">
+          <span id="chat-hdr-icon" style="font-size:1.4rem">🌐</span>
+          <div>
+            <h4 id="chat-hdr-title">Canal Geral</h4>
+            <span id="chat-hdr-desc">Discussão aberta a todos os períodos</span>
+          </div>
+        </div>
+        <div class="chat-filter-box">
+          <span>🔍</span>
+          <input type="text" id="chat-filter-input" placeholder="Filtrar mensagens neste canal...">
+          <button id="chat-filter-clear" style="background:none;border:none;color:var(--mu);cursor:pointer;display:none" title="Limpar filtro">✕</button>
+        </div>
+      </div>
+
+      <!-- MENSAGENS -->
+      <div class="chat-messages-container" id="chat-messages-container">
+        <!-- Bolhas de mensagens renderizadas dinamicamente -->
+      </div>
+
+      <!-- COMPOSER -->
+      <div class="chat-composer">
+        <div class="chat-quick-tags">
+          <button type="button" class="chat-quick-tag" data-tag="💡 Bizu: ">💡 Bizu</button>
+          <button type="button" class="chat-quick-tag" data-tag="❓ Dúvida: ">❓ Dúvida</button>
+          <button type="button" class="chat-quick-tag" data-tag="📚 Material: ">📚 Material</button>
+          <button type="button" class="chat-quick-tag" data-tag="🔥 Foco na Prova: ">🔥 Foco na Prova</button>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="chat-input-text" rows="1" placeholder="Digite uma mensagem para o canal... (Enter para enviar, Shift+Enter para nova linha)"></textarea>
+          <button id="chat-send-btn" class="chat-send-btn">Enviar ➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ÁREA / ESCOLHA DE PROVA OU SIMULADO -->
 <section id="area" class="mod" hidden>
   <button class="back" data-back>‹ Voltar às disciplinas</button>
@@ -4275,6 +4344,388 @@ function renderAdminUserTable(){
 
   tbody.innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:18px">Nenhum estudante encontrado com o filtro atual.</td></tr>';
 }
+
+
+/* ============================================================
+   LÓGICA DO CHAT ACADÊMICO DOS ESTUDANTES (COM CANAIS & FILTROS)
+   ============================================================ */
+var CHAT_CHANNELS = [
+  { id: "geral", name: "Geral", icon: "🌐", desc: "Canal aberto para todos os períodos, avisos e trocas gerais", badge: "Geral" },
+  { id: "p1", name: "1º Período", icon: "📚", desc: "Grupo de estudos do 1º Período (Anatomia, Histologia, HAM 1)", badge: "1º Per." },
+  { id: "p2", name: "2º Período", icon: "📚", desc: "Grupo de estudos do 2º Período (Fisiologia, Genética, HAM 2)", badge: "2º Per." },
+  { id: "p3", name: "3º Período", icon: "📚", desc: "Grupo de estudos do 3º Período (Farmacologia, Patologia, HAM 3)", badge: "3º Per." },
+  { id: "p4", name: "4º Período", icon: "📚", desc: "Grupo de estudos do 4º Período (Microbiologia, Semiologia, HAM 4)", badge: "4º Per." },
+  { id: "p5", name: "5º Período", icon: "📚", desc: "Grupo de estudos do 5º Período (Clínica Médica I, Cirurgia I, HAM 5)", badge: "5º Per." },
+  { id: "p6", name: "6º Período", icon: "📚", desc: "Grupo de estudos do 6º Período (Pediatria, Ginecologia e Obstetrícia, HAM 6)", badge: "6º Per." },
+  { id: "p7", name: "7º Período", icon: "📚", desc: "Grupo de estudos do 7º Período (Nefrologia, Pré-Natal, Anemias, HAM 7)", badge: "7º Per." },
+  { id: "p8", name: "8º Período", icon: "📚", desc: "Grupo de estudos do 8º Período (Cardiologia, UTI, Trauma, HAM 8)", badge: "8º Per." },
+  { id: "internato", name: "Internato", icon: "🏥", desc: "Grupo de discussão do Internato (Clínica, Cirurgia, GO, Pediatria, APS)", badge: "Internato" }
+];
+
+var curChatChannel = "geral";
+var chatFilterQuery = "";
+var chatUnreadCounts = {};
+var chatMqttClient = null;
+var chatBroadcast = (typeof BroadcastChannel !== "undefined") ? new BroadcastChannel("dm_chat_bus") : null;
+
+function getChatHistory() {
+  try {
+    var raw = localStorage.getItem("dm_chat_history_v1");
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return {};
+}
+
+function saveChatHistory(hist) {
+  try {
+    localStorage.setItem("dm_chat_history_v1", JSON.stringify(hist));
+  } catch(e) {}
+}
+
+function initChatRealtime() {
+  if (chatBroadcast) {
+    chatBroadcast.onmessage = function(ev) {
+      if (ev && ev.data && ev.data.type === "new_chat_msg") {
+        onReceiveChatMessage(ev.data.msg, false);
+      }
+    };
+  }
+
+  if (typeof mqtt !== "undefined") {
+    try {
+      var clientId = "dm_web_" + Math.random().toString(16).substring(2, 10);
+      chatMqttClient = mqtt.connect("wss://broker.emqx.io:8084/mqtt", {
+        clientId: clientId,
+        clean: true,
+        connectTimeout: 7000,
+        reconnectPeriod: 5000
+      });
+
+      chatMqttClient.on("connect", function() {
+        updateChatStatus(true);
+        chatMqttClient.subscribe("desenrolamed/v1/chat/+", function(err) {
+          if (!err) console.log("Subscribed to DesenrolaMed chat channels");
+        });
+      });
+
+      chatMqttClient.on("message", function(topic, payload) {
+        try {
+          var msg = JSON.parse(payload.toString());
+          onReceiveChatMessage(msg, false);
+        } catch(e) {}
+      });
+
+      chatMqttClient.on("error", function() { updateChatStatus(false); });
+      chatMqttClient.on("close", function() { updateChatStatus(false); });
+    } catch(e) { updateChatStatus(false); }
+  } else {
+    updateChatStatus(false);
+  }
+}
+
+function updateChatStatus(isOnline) {
+  var pill = $("chat-global-status");
+  var text = $("chat-status-text");
+  if (!pill || !text) return;
+  if (isOnline) {
+    pill.className = "chat-status-pill chat-status-online";
+    text.textContent = "🟢 Tempo Real Ativo";
+  } else {
+    pill.className = "chat-status-pill chat-status-connecting";
+    text.textContent = "🟡 Modo Local / Sincronizando";
+  }
+}
+
+function onReceiveChatMessage(msg, isSelfBroadcast) {
+  if (!msg || !msg.channel || !msg.id) return;
+  var hist = getChatHistory();
+  hist[msg.channel] = hist[msg.channel] || [];
+
+  var exists = hist[msg.channel].some(function(m){ return m.id === msg.id; });
+  if (!exists) {
+    hist[msg.channel].push(msg);
+    if (hist[msg.channel].length > 250) {
+      hist[msg.channel] = hist[msg.channel].slice(-250);
+    }
+    saveChatHistory(hist);
+
+    if (curChatChannel === msg.channel) {
+      appendChatMessageDOM(msg);
+      scrollChatToBottom();
+    } else {
+      chatUnreadCounts[msg.channel] = (chatUnreadCounts[msg.channel] || 0) + 1;
+      renderChatChannelsList();
+    }
+  }
+}
+
+function formatChatTime(ts) {
+  if (!ts) return "";
+  var d = new Date(ts);
+  var h = String(d.getHours()).padStart(2, "0");
+  var m = String(d.getMinutes()).padStart(2, "0");
+  return h + ":" + m;
+}
+
+function renderChat() {
+  renderChatChannelsList();
+  renderActiveChannelHeader();
+  renderChatMessages();
+
+  var inp = $("chat-input-text");
+  if (inp) inp.focus();
+}
+
+function renderChatChannelsList() {
+  var list = $("chat-channels-list");
+  if (!list) return;
+
+  list.innerHTML = CHAT_CHANNELS.map(function(ch) {
+    var isActive = ch.id === curChatChannel;
+    var unread = chatUnreadCounts[ch.id] || 0;
+    var badgeHtml = unread > 0 ? '<span class="chat-unread-badge">' + (unread > 99 ? '99+' : unread) + '</span>' : '';
+
+    return '<button type="button" class="chat-channel-btn' + (isActive ? ' active' : '') + '" data-chat-ch="' + ch.id + '">' +
+      '<div class="chat-channel-info">' +
+        '<span class="chat-channel-icon">' + ch.icon + '</span>' +
+        '<div class="chat-channel-names">' +
+          '<div class="chat-channel-title">' + esc(ch.name) + '</div>' +
+          '<div class="chat-channel-desc">' + esc(ch.desc) + '</div>' +
+        '</div>' +
+      '</div>' +
+      badgeHtml +
+    '</button>';
+  }).join("");
+
+  list.querySelectorAll("[data-chat-ch]").forEach(function(btn) {
+    btn.onclick = function() {
+      switchChatChannel(btn.dataset.chatCh);
+    };
+  });
+}
+
+function switchChatChannel(chId) {
+  curChatChannel = chId;
+  chatUnreadCounts[chId] = 0;
+  chatFilterQuery = "";
+  var fInp = $("chat-filter-input");
+  if (fInp) fInp.value = "";
+  var fClr = $("chat-filter-clear");
+  if (fClr) fClr.style.display = "none";
+
+  renderChatChannelsList();
+  renderActiveChannelHeader();
+  renderChatMessages();
+}
+
+function renderActiveChannelHeader() {
+  var ch = CHAT_CHANNELS.find(function(c){ return c.id === curChatChannel; }) || CHAT_CHANNELS[0];
+  if ($("chat-hdr-icon")) $("chat-hdr-icon").textContent = ch.icon;
+  if ($("chat-hdr-title")) $("chat-hdr-title").textContent = ch.name;
+  if ($("chat-hdr-desc")) $("chat-hdr-desc").textContent = ch.desc;
+}
+
+function renderChatMessages() {
+  var box = $("chat-messages-container");
+  if (!box) return;
+
+  var hist = getChatHistory();
+  var msgs = hist[curChatChannel] || [];
+  var curUser = getCurrentUser() || {};
+
+  if (chatFilterQuery) {
+    var q = chatFilterQuery.toLowerCase();
+    msgs = msgs.filter(function(m) {
+      return (m.text && m.text.toLowerCase().indexOf(q) >= 0) ||
+             (m.user && m.user.toLowerCase().indexOf(q) >= 0) ||
+             (m.period && m.period.toLowerCase().indexOf(q) >= 0);
+    });
+  }
+
+  if (msgs.length === 0) {
+    var ch = CHAT_CHANNELS.find(function(c){ return c.id === curChatChannel; }) || CHAT_CHANNELS[0];
+    if (chatFilterQuery) {
+      box.innerHTML = '<div class="chat-empty-state"><span>🔍</span><b>Nenhuma mensagem encontrada</b><p>Tente buscar por outro termo ou autor.</p></div>';
+    } else {
+      box.innerHTML = '<div class="chat-empty-state"><span>' + ch.icon + '</span><b>Bem-vindo ao canal ' + esc(ch.name) + '!</b><p>' + esc(ch.desc) + '. Envie a primeira mensagem para iniciar a conversa.</p></div>';
+    }
+    return;
+  }
+
+  box.innerHTML = "";
+  msgs.forEach(function(m) {
+    box.appendChild(createMessageDOM(m, curUser));
+  });
+
+  scrollChatToBottom();
+}
+
+function createMessageDOM(m, curUser) {
+  var isOwn = (curUser && curUser.email && m.email && curUser.email.toLowerCase() === m.email.toLowerCase()) ||
+              (curUser && curUser.name && m.user === curUser.name);
+
+  var row = document.createElement("div");
+  row.className = "chat-msg-row" + (isOwn ? " own" : "");
+
+  var initial = (m.user ? m.user.trim().charAt(0).toUpperCase() : "?");
+  var avatar = document.createElement("div");
+  avatar.className = "chat-msg-avatar";
+  avatar.textContent = initial;
+
+  var bubble = document.createElement("div");
+  bubble.className = "chat-msg-bubble";
+
+  var meta = document.createElement("div");
+  meta.className = "chat-msg-meta";
+
+  var author = document.createElement("span");
+  author.className = "chat-msg-author";
+  author.textContent = isOwn ? "Você" : (m.user || "Estudante");
+  meta.appendChild(author);
+
+  if (m.isAdmin) {
+    var admBadge = document.createElement("span");
+    admBadge.className = "chat-msg-badge admin";
+    admBadge.textContent = "👑 Admin";
+    meta.appendChild(admBadge);
+  } else if (m.period) {
+    var perBadge = document.createElement("span");
+    perBadge.className = "chat-msg-badge";
+    perBadge.textContent = m.period;
+    meta.appendChild(perBadge);
+  }
+
+  var time = document.createElement("span");
+  time.className = "chat-msg-time";
+  time.textContent = formatChatTime(m.ts);
+  meta.appendChild(time);
+
+  bubble.appendChild(meta);
+
+  var textDiv = document.createElement("div");
+  var rawText = esc(m.text || "").replace(/\n/g, "<br>");
+  textDiv.innerHTML = rawText;
+  bubble.appendChild(textDiv);
+
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  return row;
+}
+
+function appendChatMessageDOM(m) {
+  var box = $("chat-messages-container");
+  if (!box) return;
+  var emptyState = box.querySelector(".chat-empty-state");
+  if (emptyState) box.innerHTML = "";
+
+  var curUser = getCurrentUser() || {};
+  box.appendChild(createMessageDOM(m, curUser));
+}
+
+function scrollChatToBottom() {
+  var box = $("chat-messages-container");
+  if (box) {
+    box.scrollTop = box.scrollHeight;
+  }
+}
+
+function sendChatMessage() {
+  var inp = $("chat-input-text");
+  if (!inp) return;
+  var text = inp.value.trim();
+  if (!text) return;
+
+  var curUser = getCurrentUser();
+  if (!curUser) {
+    alert("Por favor, faça login ou crie sua conta para participar do chat.");
+    openAuthModal();
+    return;
+  }
+
+  var periodLabelStr = curUser.period ? (curUser.period.indexOf("º") >= 0 || curUser.period.indexOf("Int") >= 0 ? curUser.period : curUser.period + "º Período") : "Medicina";
+  if (curUser.period === "int") periodLabelStr = "Internato";
+
+  var msg = {
+    id: "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+    channel: curChatChannel,
+    user: curUser.name || "Estudante",
+    email: curUser.email || "",
+    period: periodLabelStr,
+    isAdmin: isAdminUser(curUser),
+    text: text,
+    ts: Date.now()
+  };
+
+  inp.value = "";
+  inp.style.height = "auto";
+
+  onReceiveChatMessage(msg, true);
+
+  if (chatBroadcast) {
+    try {
+      chatBroadcast.postMessage({ type: "new_chat_msg", msg: msg });
+    } catch(e) {}
+  }
+
+  if (chatMqttClient && chatMqttClient.connected) {
+    try {
+      chatMqttClient.publish("desenrolamed/v1/chat/" + curChatChannel, JSON.stringify(msg));
+    } catch(e) {}
+  }
+}
+
+function initChatEventListeners() {
+  var sendBtn = $("chat-send-btn");
+  if (sendBtn) {
+    sendBtn.onclick = sendChatMessage;
+  }
+
+  var inp = $("chat-input-text");
+  if (inp) {
+    inp.onkeydown = function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    };
+    inp.oninput = function() {
+      this.style.height = "auto";
+      this.style.height = Math.min(this.scrollHeight, 110) + "px";
+    };
+  }
+
+  document.querySelectorAll(".chat-quick-tag").forEach(function(btn) {
+    btn.onclick = function() {
+      var tag = btn.dataset.tag;
+      if (inp) {
+        inp.value = tag + inp.value;
+        inp.focus();
+      }
+    };
+  });
+
+  var fInp = $("chat-filter-input");
+  var fClr = $("chat-filter-clear");
+  if (fInp) {
+    fInp.oninput = function() {
+      chatFilterQuery = this.value.trim();
+      if (fClr) fClr.style.display = chatFilterQuery ? "block" : "none";
+      renderChatMessages();
+    };
+  }
+  if (fClr) {
+    fClr.onclick = function() {
+      chatFilterQuery = "";
+      if (fInp) fInp.value = "";
+      fClr.style.display = "none";
+      renderChatMessages();
+    };
+  }
+}
+
+// Start chat when page loads
+initChatRealtime();
+initChatEventListeners();
 
 </script>
 </body>
