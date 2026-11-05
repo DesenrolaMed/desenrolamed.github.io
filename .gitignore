@@ -1,0 +1,12 @@
+# Ignorar arquivos pesados (PDFs e materiais de estudo) para manter o repositório leve e rápido
+*.pdf
+*.VIP
+CC 3/
+CC 4/
+CI 2/
+CI 3/
+HAM 8*/
+IESC 8*/
+Integradora 7/
+Integradora 8*/
+PROVAS AFYA/
