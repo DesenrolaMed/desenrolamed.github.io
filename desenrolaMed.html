@@ -2048,7 +2048,7 @@ var PDF_MAP={
 };
 
 // Navigation
-var ALL_SECS=["top","provas","metas","erros","guias","flashcards","ia","admin","area","ci"];
+var ALL_SECS=["top","provas","metas","erros","guias","flashcards","ia","admin","chat","area","ci"];
 function show(id){
   tick(id==="ci"&&!man);
   ALL_SECS.forEach(function(s){if($(s))$(s).hidden=s!==id});
@@ -4794,15 +4794,22 @@ function initChatRealtime() {
 
       chatMqttClient.on("connect", function() {
         updateChatStatus(true);
-        chatMqttClient.subscribe("desenrolamed/v1/chat/+", function(err) {
+        chatMqttClient.subscribe("desenrolamed/v1/chat/+", { qos: 1 }, function(err) {
           if (!err) console.log("Subscribed to DesenrolaMed chat channels");
         });
+        chatMqttClient.subscribe("desenrolamed/v1/chat_history/+", { qos: 1 }, function(err) {});
       });
 
       chatMqttClient.on("message", function(topic, payload) {
         try {
-          var msg = JSON.parse(payload.toString());
-          onReceiveChatMessage(msg, false);
+          var str = payload.toString();
+          if (!str) return;
+          var parsed = JSON.parse(str);
+          if (topic.indexOf("desenrolamed/v1/chat_history/") === 0 && Array.isArray(parsed)) {
+            parsed.forEach(function(m) { onReceiveChatMessage(m, false); });
+          } else {
+            onReceiveChatMessage(parsed, false);
+          }
         } catch(e) {}
       });
 
@@ -5058,9 +5065,13 @@ function sendChatMessage() {
     } catch(e) {}
   }
 
-  if (chatMqttClient && chatMqttClient.connected) {
+  var activeMqtt = (chatMqttClient && chatMqttClient.connected) ? chatMqttClient : ((typeof cloudSyncClient !== "undefined" && cloudSyncClient && cloudSyncClient.connected) ? cloudSyncClient : null);
+  if (activeMqtt) {
     try {
-      chatMqttClient.publish("desenrolamed/v1/chat/" + curChatChannel, JSON.stringify(msg));
+      activeMqtt.publish("desenrolamed/v1/chat/" + curChatChannel, JSON.stringify(msg), { qos: 1 });
+      var allHist = getChatHistory();
+      var chMsgs = (allHist[curChatChannel] || []).slice(-40);
+      activeMqtt.publish("desenrolamed/v1/chat_history/" + curChatChannel, JSON.stringify(chMsgs), { retain: true, qos: 1 });
     } catch(e) {}
   }
 }
