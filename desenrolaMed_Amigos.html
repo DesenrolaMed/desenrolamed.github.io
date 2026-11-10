@@ -4190,7 +4190,8 @@ $("btn-submit-signup").onclick = function(){
     fbAuth.createUserWithEmailAndPassword(email, pass).then(function(cred){
       newUser.id = cred.user.uid;
       syncUserToFirebase(newUser);
-      finalizeSignup();
+      broadcastNewUser(newUser);
+    finalizeSignup();
     }).catch(function(err){
       if (err.code === "auth/email-already-in-use") {
         msg.className = "auth-msg err";
@@ -4384,6 +4385,7 @@ function onQuestionAnswered(isOk){
     }
   }
   updateOnlineHeartbeat();
+    if(typeof broadcastUserProgress === "function") broadcastUserProgress(myTotal);
   renderLeaderboard();
   var adminSec = $("admin");
   if(adminSec && !adminSec.hidden){
@@ -4437,6 +4439,22 @@ function renderAdminPanel(){
         activity: p.activity || "Resolvendo questões",
         isYou: currentUser && (p.email === currentUser.email)
       });
+    }
+  });
+
+  // Mescla estudantes conectados em tempo real via nuvem
+  Object.keys(cloudConnectedUsers || {}).forEach(function(k){
+    var cp = cloudConnectedUsers[k];
+    if(cp && cp.lastActive && (now - cp.lastActive) < 300000){
+      if(!onlineList.some(function(x){ return x.email.toLowerCase() === cp.email.toLowerCase(); })){
+        onlineList.push({
+          name: cp.name,
+          email: cp.email,
+          period: cp.period,
+          activity: cp.activity || "Estudando no DesenrolaMed",
+          isYou: currentUser && (cp.email.toLowerCase() === currentUser.email.toLowerCase())
+        });
+      }
     }
   });
 
@@ -4940,6 +4958,7 @@ function initChatEventListeners() {
 
 // Start chat when page loads
 initChatRealtime();
+initCloudSync();
 initChatEventListeners();
 
 </script>
