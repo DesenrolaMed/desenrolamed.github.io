@@ -1829,6 +1829,10 @@ footer{border-top:1px solid var(--ln);color:var(--mu);font-size:.8rem;padding:18
 <footer>desenrolaMed · Banco Pessoal de Questões (1º ao 8º Período, Internato, ENAMED e TPI · AFYA) · Atalhos na questão: A–E (alternativa), Enter (confirmar/próxima), ←/→ (navegar), S (favoritar).</footer>
 </div>
 
+<!-- Google Firebase SDK (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
 <!-- Módulos Adicionais de Questões (PROVAS AFYA) -->
 <script src="dados/provas_afya_1.js"></script>
@@ -3744,38 +3748,101 @@ $("btn-reset-hist").onclick=function(){
   hist={};sv("dm-hist",hist);show("top");
 };
 
-// ==========================================
-// SISTEMA DE AUTENTICAÇÃO E PERFIL DO ALUNO
-// ==========================================
+// ========================================================
+// SISTEMA DE AUTENTICAÇÃO E NUVEM GOOGLE FIREBASE (FIRESTORE)
+// ========================================================
+var firebaseConfig = {
+  apiKey: "AIzaSyAXZy3IdEOee9soyktqvfqN5g93uHRBHXM",
+  authDomain: "desenrolamed-c5530.firebaseapp.com",
+  projectId: "desenrolamed-c5530",
+  storageBucket: "desenrolamed-c5530.firebasestorage.app",
+  messagingSenderId: "975703062801",
+  appId: "1:975703062801:web:16be75a17e2934acb474b0",
+  measurementId: "G-B2V2GXET5M"
+};
+
+var fbApp = null;
+var fbAuth = null;
+var fbDb = null;
+var fbCloudUsers = [];
+
+try {
+  if (typeof firebase !== "undefined") {
+    fbApp = firebase.initializeApp(firebaseConfig);
+    fbAuth = firebase.auth();
+    fbDb = firebase.firestore();
+    console.log("Firebase inicializado com sucesso no DesenrolaMed!");
+  }
+} catch(e) {
+  console.warn("Aviso ao conectar com Firebase:", e.message);
+}
+
 function getAuthUsers(){
-  var list = ld("dm_auth_users", []);
-  var hasIgor = false;
-  var changed = false;
-  list.forEach(function(u){
-    var isIgor = (u.email || "").trim().toLowerCase() === "igorinteraminense@gmail.com";
-    if(isIgor){
-      hasIgor = true;
-      if(u.role !== "admin"){ u.role = "admin"; changed = true; }
-    } else {
-      if(u.role === "admin"){ u.role = "user"; changed = true; }
+  var localList = ld("dm_auth_users", []);
+  var mergedMap = {};
+
+  // 1. Carregar lista local
+  localList.forEach(function(u){
+    if (u && u.email) {
+      mergedMap[u.email.toLowerCase()] = u;
     }
   });
-  if(!hasIgor){
-    list.push({
+
+  // 2. Mesclar com os usuários sincronizados do Firebase Firestore
+  fbCloudUsers.forEach(function(cu){
+    if (cu && cu.email) {
+      var k = cu.email.toLowerCase();
+      if (!mergedMap[k]) {
+        mergedMap[k] = cu;
+      } else {
+        // Atualiza com dados mais recentes da nuvem
+        mergedMap[k].name = cu.name || mergedMap[k].name;
+        mergedMap[k].period = cu.period || mergedMap[k].period;
+        mergedMap[k].totalSolved = Math.max(mergedMap[k].totalSolved || 0, cu.totalSolved || 0);
+        mergedMap[k].lastActive = Math.max(mergedMap[k].lastActive || 0, cu.lastActive || 0);
+        mergedMap[k].role = cu.role || mergedMap[k].role;
+        mergedMap[k].createdAt = cu.createdAt || mergedMap[k].createdAt;
+      }
+    }
+  });
+
+  // Garantir que a conta oficial do Igor é sempre admin
+  var hasIgor = false;
+  Object.keys(mergedMap).forEach(function(k){
+    var u = mergedMap[k];
+    var isIgor = (u.email || "").trim().toLowerCase() === "igorinteraminense@gmail.com";
+    if (isIgor) {
+      hasIgor = true;
+      u.role = "admin";
+    } else {
+      if (u.role === "admin") u.role = "user";
+    }
+  });
+
+  if (!hasIgor) {
+    var igorObj = {
       id: "usr_igorinteraminense",
       name: "Igor Interaminense",
       email: "igorinteraminense@gmail.com",
       pass: "123456",
       period: "8",
       role: "admin",
-      createdAt: "2026-02-01T12:00:00.000Z"
-    });
-    changed = true;
+      createdAt: "2026-02-01T12:00:00.000Z",
+      totalSolved: 0,
+      lastActive: Date.now()
+    };
+    mergedMap["igorinteraminense@gmail.com"] = igorObj;
   }
-  if(changed){ sv("dm_auth_users", list); }
+
+  var list = Object.keys(mergedMap).map(function(k){ return mergedMap[k]; });
+  sv("dm_auth_users", list);
   return list;
 }
-function saveAuthUsers(users){ sv("dm_auth_users", users); }
+
+function saveAuthUsers(users){
+  sv("dm_auth_users", users);
+}
+
 function getCurrentUser(){
   var u = ld("dm_current_user", null);
   if(u){
@@ -3790,7 +3857,14 @@ function getCurrentUser(){
   }
   return u;
 }
-function setCurrentUser(user){ sv("dm_current_user", user); updateAuthUI(); }
+
+function setCurrentUser(user){
+  sv("dm_current_user", user);
+  updateAuthUI();
+  if (user && fbDb) {
+    syncUserToFirebase(user);
+  }
+}
 
 function updateAuthUI(){
   var u = getCurrentUser();
@@ -3820,6 +3894,55 @@ function updateAuthUI(){
   }
 }
 
+// Sincroniza usuário com o Firebase Firestore
+function syncUserToFirebase(u){
+  if (!fbDb || !u || !u.email) return;
+  var docKey = u.email.trim().toLowerCase().replace(/\./g, "_");
+  var isAdm = isAdminUser(u);
+  var mySolved = Object.keys(hist || {}).length;
+
+  fbDb.collection("users").doc(docKey).set({
+    name: u.name,
+    email: u.email.trim().toLowerCase(),
+    period: u.period || "8",
+    role: isAdm ? "admin" : "user",
+    totalSolved: Math.max(u.totalSolved || 0, mySolved),
+    lastActive: Date.now(),
+    createdAt: u.createdAt || new Date().toISOString()
+  }, { merge: true }).catch(function(err){
+    console.warn("Erro ao sincronizar com Firestore:", err);
+  });
+}
+
+// Escuta em TEMPO REAL todos os usuários do Firebase Firestore
+function listenFirebaseUsers(){
+  if (!fbDb) return;
+  try {
+    fbDb.collection("users").onSnapshot(function(snapshot){
+      var list = [];
+      snapshot.forEach(function(doc){
+        var data = doc.data();
+        if (data && data.email) {
+          list.push(data);
+        }
+      });
+      if (list.length > 0) {
+        fbCloudUsers = list;
+        getAuthUsers(); // Atualiza cache local
+        renderLeaderboard();
+        var adminSec = $("admin");
+        if (adminSec && !adminSec.hidden) {
+          renderAdminPanel();
+        }
+      }
+    }, function(err){
+      console.warn("Firestore onSnapshot error:", err);
+    });
+  } catch(e) {
+    console.warn("Erro ao conectar listener Firestore:", e);
+  }
+}
+
 function openAuthModal(mode){
   var m = $("auth-modal");
   if(!m) return;
@@ -3846,7 +3969,7 @@ function openAuthModal(mode){
     $("profile-stat-done").textContent = totalDone;
     $("profile-stat-acc").textContent = acc + "%";
   } else {
-    // Modo deslogado (acesso restrito obrigatório)
+    // Modo deslogado
     document.body.classList.add("auth-locked");
     if($("auth-close-btn")) $("auth-close-btn").style.display = "none";
     $("auth-unlogged-view").style.display = "block";
@@ -3858,7 +3981,6 @@ function openAuthModal(mode){
 function closeAuthModal(){
   var u = getCurrentUser();
   if(!u){
-    // Sem login, bloqueia fechar
     return;
   }
   var m = $("auth-modal");
@@ -3915,7 +4037,7 @@ $("auth-modal").onclick = function(e){ if(e.target === $("auth-modal") && getCur
 $("tab-btn-login").onclick = function(){ switchAuthTab("login"); };
 $("tab-btn-signup").onclick = function(){ switchAuthTab("signup"); };
 
-// Executar Login
+// Executar Login (com Firebase Auth + Firestore + Local)
 $("btn-submit-login").onclick = function(){
   var email = ($("inp-login-email").value || "").trim().toLowerCase();
   var pass = ($("inp-login-pass").value || "").trim();
@@ -3925,30 +4047,86 @@ $("btn-submit-login").onclick = function(){
     msg.textContent = "Preencha e-mail e senha para acessar.";
     return;
   }
-  var users = getAuthUsers();
-  var found = users.find(function(x){ return x.email === email && x.pass === pass; });
-  if(!found){
-    msg.className = "auth-msg err";
-    msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha cadastro, clique na aba 'Criar Conta'.";
-    return;
+
+  msg.className = "auth-msg";
+  msg.style.display = "block";
+  msg.textContent = "Autenticando na nuvem...";
+
+  function finalizeLogin(userData) {
+    if (userData.email.trim().toLowerCase() === "igorinteraminense@gmail.com") {
+      userData.role = "admin";
+    } else {
+      userData.role = "user";
+    }
+    userData.lastActive = Date.now();
+    setCurrentUser(userData);
+    document.body.classList.remove("auth-locked");
+    msg.className = "auth-msg ok";
+    msg.textContent = "Acesso autorizado! Bem-vindo(a), " + userData.name + ".";
+    setTimeout(function(){
+      closeAuthModal();
+      initGreetingAndPeriods();
+    }, 500);
   }
-  if(found.email.trim().toLowerCase() === "igorinteraminense@gmail.com"){
-    found.role = "admin";
+
+  // Tenta logar via Firebase Auth se disponível
+  if (fbAuth) {
+    fbAuth.signInWithEmailAndPassword(email, pass).then(function(cred){
+      // Busca dados adicionais no Firestore
+      var docKey = email.replace(/\./g, "_");
+      fbDb.collection("users").doc(docKey).get().then(function(docSnap){
+        var dbData = docSnap.exists ? docSnap.data() : {};
+        var userObj = {
+          id: cred.user.uid,
+          name: dbData.name || cred.user.displayName || email.split("@")[0],
+          email: email,
+          period: dbData.period || "8",
+          role: dbData.role || (email === "igorinteraminense@gmail.com" ? "admin" : "user"),
+          totalSolved: dbData.totalSolved || Object.keys(hist || {}).length,
+          createdAt: dbData.createdAt || new Date().toISOString()
+        };
+        finalizeLogin(userObj);
+      }).catch(function(){
+        finalizeLogin({
+          id: cred.user.uid,
+          name: email.split("@")[0],
+          email: email,
+          period: "8"
+        });
+      });
+    }).catch(function(fbErr){
+      // Se falhar no Firebase, tenta no banco local (para contas criadas antes)
+      var users = getAuthUsers();
+      var found = users.find(function(x){ return x.email === email && x.pass === pass; });
+      if (found) {
+        finalizeLogin(found);
+        // Tenta registrar no Firebase em background
+        fbAuth.createUserWithEmailAndPassword(email, pass).catch(function(){});
+      } else {
+        msg.className = "auth-msg err";
+        if (fbErr.code === "auth/invalid-credential" || fbErr.code === "auth/wrong-password") {
+          msg.textContent = "Senha incorreta. Verifique os dados.";
+        } else if (fbErr.code === "auth/user-not-found") {
+          msg.textContent = "Usuário não encontrado. Clique na aba 'Criar Conta' para se cadastrar.";
+        } else {
+          msg.textContent = "E-mail ou senha incorretos. Caso ainda não tenha cadastro, clique em 'Criar Conta'.";
+        }
+      }
+    });
   } else {
-    found.role = "user";
+    // Fallback offline / local
+    var users = getAuthUsers();
+    var found = users.find(function(x){ return x.email === email && (!x.pass || x.pass === pass); });
+    if (!found) {
+      msg.className = "auth-msg err";
+      msg.textContent = "E-mail ou senha incorretos. Clique na aba 'Criar Conta'.";
+      return;
+    }
+    finalizeLogin(found);
   }
-  saveAuthUsers(users);
-  setCurrentUser(found);
-  document.body.classList.remove("auth-locked");
-  msg.className = "auth-msg ok";
-  msg.textContent = "Acesso autorizado! Bem-vindo de volta, " + found.name + ".";
-  setTimeout(function(){
-    closeAuthModal();
-    initGreetingAndPeriods();
-  }, 500);
 };
 
-// Executar Cadastro
+// Executar Cadastro (com Firebase Auth + Firestore + Local)
 $("btn-submit-signup").onclick = function(){
   var name = ($("inp-signup-name").value || "").trim();
   var email = ($("inp-signup-email").value || "").trim().toLowerCase();
@@ -3960,17 +4138,16 @@ $("btn-submit-signup").onclick = function(){
     msg.textContent = "Preencha todos os campos para criar seu acesso.";
     return;
   }
-  if(pass.length < 4){
+  if(pass.length < 6){
     msg.className = "auth-msg err";
-    msg.textContent = "A senha deve conter no mínimo 4 caracteres.";
+    msg.textContent = "A senha deve conter no mínimo 6 caracteres para segurança.";
     return;
   }
-  var users = getAuthUsers();
-  if(users.some(function(x){ return x.email === email; })){
-    msg.className = "auth-msg err";
-    msg.textContent = "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.";
-    return;
-  }
+
+  msg.className = "auth-msg";
+  msg.style.display = "block";
+  msg.textContent = "Criando conta na nuvem do DesenrolaMed...";
+
   var isAdm = (email.trim().toLowerCase() === "igorinteraminense@gmail.com");
   var newUser = {
     id: "usr_" + Date.now(),
@@ -3980,31 +4157,60 @@ $("btn-submit-signup").onclick = function(){
     period: period,
     role: isAdm ? "admin" : "user",
     totalSolved: 0,
+    lastActive: Date.now(),
     createdAt: new Date().toISOString()
   };
-  users.push(newUser);
-  saveAuthUsers(users);
-  setCurrentUser(newUser);
-  document.body.classList.remove("auth-locked");
 
-  if(period && period !== "all"){
-    curPeriod = period;
-    sv("dm-period", curPeriod);
+  function finalizeSignup() {
+    var users = getAuthUsers();
+    if (!users.some(function(x){ return x.email === email; })) {
+      users.push(newUser);
+      saveAuthUsers(users);
+    }
+    setCurrentUser(newUser);
+    document.body.classList.remove("auth-locked");
+
+    if(period && period !== "all"){
+      curPeriod = period;
+      sv("dm-period", curPeriod);
+    }
+
+    msg.className = "auth-msg ok";
+    msg.textContent = "Conta criada com sucesso na nuvem! Entrando na plataforma...";
+    setTimeout(function(){
+      closeAuthModal();
+      initGreetingAndPeriods();
+      buildDashboard();
+      buildAreas();
+    }, 600);
   }
 
-  msg.className = "auth-msg ok";
-  msg.textContent = "Acesso criado com sucesso! Carregando a plataforma...";
-  setTimeout(function(){
-    closeAuthModal();
-    initGreetingAndPeriods();
-    buildDashboard();
-    buildAreas();
-  }, 600);
+  // Registra no Firebase Auth + Firestore
+  if (fbAuth) {
+    fbAuth.createUserWithEmailAndPassword(email, pass).then(function(cred){
+      newUser.id = cred.user.uid;
+      syncUserToFirebase(newUser);
+      finalizeSignup();
+    }).catch(function(err){
+      if (err.code === "auth/email-already-in-use") {
+        msg.className = "auth-msg err";
+        msg.textContent = "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.";
+      } else {
+        console.warn("Firebase Auth signup notice:", err);
+        // Mesmo se o Auth falhar por restrição, grava no Firestore e local
+        syncUserToFirebase(newUser);
+        finalizeSignup();
+      }
+    });
+  } else {
+    finalizeSignup();
+  }
 };
 
 // Logout
 $("btn-logout").onclick = function(){
   if(confirm("Deseja sair da sua conta?")){
+    if (fbAuth) fbAuth.signOut().catch(function(){});
     setCurrentUser(null);
     checkAccessGate();
   }
@@ -4012,6 +4218,9 @@ $("btn-logout").onclick = function(){
 
 // Inicializar interface e checagem de acesso obrigatório
 checkAccessGate();
+
+// Iniciar conexão com o Firebase Firestore em tempo real
+listenFirebaseUsers();
 
 // Initialize App Immediately (No Gate!)
 initGreetingAndPeriods();rg();re();buildDashboard();buildAreas();
@@ -4170,6 +4379,9 @@ function onQuestionAnswered(isOk){
       found.lastActive = Date.now();
       saveAuthUsers(users);
     }
+    if(typeof syncUserToFirebase === "function"){
+      syncUserToFirebase(u);
+    }
   }
   updateOnlineHeartbeat();
   renderLeaderboard();
@@ -4193,6 +4405,9 @@ function updateOnlineHeartbeat(){
     activity: "Resolvendo questões na plataforma"
   };
   sv("dm_online_presence", presence);
+  if(typeof syncUserToFirebase === "function"){
+    syncUserToFirebase(u);
+  }
 }
 
 function startOnlineHeartbeat(){
