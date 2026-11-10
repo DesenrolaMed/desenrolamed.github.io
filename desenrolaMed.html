@@ -3861,6 +3861,10 @@ function getCurrentUser(){
 function setCurrentUser(user){
   sv("dm_current_user", user);
   updateAuthUI();
+  if (user) {
+    if (typeof publishMyPresence === "function") publishMyPresence();
+    if (typeof broadcastSyncRequest === "function" && isAdminUser(user)) broadcastSyncRequest();
+  }
   if (user && fbDb) {
     syncUserToFirebase(user);
   }
@@ -4953,6 +4957,216 @@ function initChatEventListeners() {
       fClr.style.display = "none";
       renderChatMessages();
     };
+  }
+}
+
+
+// ========================================================
+// SISTEMA DE SINCRONIZAÇÃO EM NUVEM AUTOMÁTICA EM TEMPO REAL
+// (Zero configuração necessária - Funciona 100% automático via WebSockets)
+// ========================================================
+var cloudSyncClient = null;
+var cloudConnectedUsers = {};
+
+function initCloudSync(){
+  if (typeof mqtt === "undefined") {
+    console.warn("MQTT não carregado para sincronização em nuvem.");
+    return;
+  }
+  try {
+    var cId = "dm_sync_" + Math.random().toString(16).substring(2, 10);
+    cloudSyncClient = mqtt.connect("wss://broker.emqx.io:8084/mqtt", {
+      clientId: cId,
+      clean: true,
+      connectTimeout: 7000,
+      reconnectPeriod: 5000
+    });
+
+    cloudSyncClient.on("connect", function(){
+      console.log("Nuvem em tempo real conectada com sucesso!");
+      cloudSyncClient.subscribe("desenrolamed/v1/presence/+", function(err){});
+      cloudSyncClient.subscribe("desenrolamed/v1/users/+", function(err){});
+      cloudSyncClient.subscribe("desenrolamed/v1/sync/+", function(err){});
+
+      var u = getCurrentUser();
+      if (u && isAdminUser(u)) {
+        broadcastSyncRequest();
+      }
+      publishMyPresence();
+    });
+
+    cloudSyncClient.on("message", function(topic, payload){
+      try {
+        var data = JSON.parse(payload.toString());
+        handleCloudMessage(topic, data);
+      } catch(e){}
+    });
+
+    setInterval(function(){
+      publishMyPresence();
+    }, 20000);
+
+  } catch(e){
+    console.warn("Aviso ao conectar nuvem em tempo real:", e);
+  }
+}
+
+function handleCloudMessage(topic, data){
+  if (!data) return;
+  var curUser = getCurrentUser();
+
+  if (topic.indexOf("desenrolamed/v1/presence/") === 0) {
+    if (data.email) {
+      cloudConnectedUsers[data.email.toLowerCase()] = {
+        name: data.name || "Estudante",
+        email: data.email.toLowerCase(),
+        period: data.period || "8",
+        totalSolved: data.totalSolved || 0,
+        lastActive: data.lastActive || Date.now(),
+        activity: data.activity || "Resolvendo questões",
+        role: (data.email.toLowerCase() === "igorinteraminense@gmail.com") ? "admin" : "user"
+      };
+      registerKnownUser(cloudConnectedUsers[data.email.toLowerCase()]);
+      updatePresenceAndAdminUI();
+    }
+  }
+
+  if (topic === "desenrolamed/v1/users/new") {
+    if (data.email) {
+      registerKnownUser(data);
+      updatePresenceAndAdminUI();
+    }
+  }
+
+  if (topic === "desenrolamed/v1/users/progress") {
+    if (data.email) {
+      var users = getAuthUsers();
+      var found = users.find(function(x){ return x.email.toLowerCase() === data.email.toLowerCase(); });
+      if (found) {
+        found.totalSolved = Math.max(found.totalSolved || 0, data.totalSolved || 0);
+        found.lastActive = Date.now();
+        saveAuthUsers(users);
+      }
+      if (cloudConnectedUsers[data.email.toLowerCase()]) {
+        cloudConnectedUsers[data.email.toLowerCase()].totalSolved = Math.max(cloudConnectedUsers[data.email.toLowerCase()].totalSolved || 0, data.totalSolved || 0);
+        cloudConnectedUsers[data.email.toLowerCase()].lastActive = Date.now();
+      }
+      renderLeaderboard();
+      var adm = $("admin");
+      if (adm && !adm.hidden) renderAdminPanel();
+    }
+  }
+
+  if (topic === "desenrolamed/v1/sync/request") {
+    if (curUser && curUser.email) {
+      publishMyUserData();
+    }
+  }
+
+  if (topic === "desenrolamed/v1/sync/response") {
+    if (data.email) {
+      registerKnownUser(data);
+      updatePresenceAndAdminUI();
+    }
+  }
+}
+
+function registerKnownUser(userObj){
+  if (!userObj || !userObj.email) return;
+  var email = userObj.email.trim().toLowerCase();
+  var users = ld("dm_auth_users", []);
+  var found = users.find(function(x){ return (x.email || "").toLowerCase() === email; });
+
+  if (found) {
+    found.name = userObj.name || found.name;
+    found.period = userObj.period || found.period;
+    found.totalSolved = Math.max(found.totalSolved || 0, userObj.totalSolved || 0);
+    found.lastActive = Math.max(found.lastActive || 0, userObj.lastActive || Date.now());
+    if (email === "igorinteraminense@gmail.com") found.role = "admin";
+  } else {
+    users.push({
+      id: userObj.id || ("usr_" + Date.now()),
+      name: userObj.name || "Estudante",
+      email: email,
+      period: userObj.period || "8",
+      totalSolved: userObj.totalSolved || 0,
+      lastActive: userObj.lastActive || Date.now(),
+      createdAt: userObj.createdAt || new Date().toISOString(),
+      role: (email === "igorinteraminense@gmail.com") ? "admin" : "user"
+    });
+  }
+  sv("dm_auth_users", users);
+}
+
+function publishMyPresence(){
+  var u = getCurrentUser();
+  if (!u || !cloudSyncClient || !cloudSyncClient.connected) return;
+  var mySolved = Object.keys(hist || {}).length;
+  var payload = {
+    id: u.id,
+    name: u.name,
+    email: u.email.trim().toLowerCase(),
+    period: u.period || "8",
+    totalSolved: mySolved,
+    lastActive: Date.now(),
+    activity: "Estudando no DesenrolaMed"
+  };
+
+  try {
+    cloudSyncClient.publish("desenrolamed/v1/presence/" + encodeURIComponent(u.email.replace(/[@.]/g, "_")), JSON.stringify(payload));
+  } catch(e){}
+}
+
+function publishMyUserData(){
+  var u = getCurrentUser();
+  if (!u || !cloudSyncClient || !cloudSyncClient.connected) return;
+  var mySolved = Object.keys(hist || {}).length;
+  var payload = {
+    id: u.id,
+    name: u.name,
+    email: u.email.trim().toLowerCase(),
+    period: u.period || "8",
+    totalSolved: mySolved,
+    lastActive: Date.now(),
+    createdAt: u.createdAt || new Date().toISOString()
+  };
+
+  try {
+    cloudSyncClient.publish("desenrolamed/v1/sync/response", JSON.stringify(payload));
+  } catch(e){}
+}
+
+function broadcastNewUser(userObj){
+  if (!cloudSyncClient || !cloudSyncClient.connected) return;
+  try {
+    cloudSyncClient.publish("desenrolamed/v1/users/new", JSON.stringify(userObj));
+  } catch(e){}
+}
+
+function broadcastUserProgress(solvedCount){
+  var u = getCurrentUser();
+  if (!u || !cloudSyncClient || !cloudSyncClient.connected) return;
+  try {
+    cloudSyncClient.publish("desenrolamed/v1/users/progress", JSON.stringify({
+      email: u.email.trim().toLowerCase(),
+      totalSolved: solvedCount,
+      lastActive: Date.now()
+    }));
+  } catch(e){}
+}
+
+function broadcastSyncRequest(){
+  if (!cloudSyncClient || !cloudSyncClient.connected) return;
+  try {
+    cloudSyncClient.publish("desenrolamed/v1/sync/request", JSON.stringify({ req: "all", ts: Date.now() }));
+  } catch(e){}
+}
+
+function updatePresenceAndAdminUI(){
+  renderLeaderboard();
+  var adm = $("admin");
+  if (adm && !adm.hidden) {
+    renderAdminPanel();
   }
 }
 
